@@ -1,11 +1,11 @@
 {
-     "android": {
-         "release": {
-             "keystore": "",
-             "storePassword": "",
-             "alias": "",
-             "password" : "",
-             "keystoreType": ""
-         }
-     }
- }
+  "android": {
+    "release": {
+      "keystore": "c:\\keys\\key.jks",
+      "storePassword": "Adjusted1",
+      "alias": "sweetkey",
+      "password": "Adjusted1",
+      "keystoreType": ""
+    }
+  }
+}

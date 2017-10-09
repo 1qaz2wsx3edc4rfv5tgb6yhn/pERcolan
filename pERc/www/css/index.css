@@ -32,7 +32,6 @@ body {
 }
 
 .app {
-    background: url(../images/cordova.png) no-repeat center top; 
     position: absolute;             
     left: 50%;
     top: 50%;

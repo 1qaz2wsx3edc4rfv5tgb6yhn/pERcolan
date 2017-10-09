@@ -19,9 +19,9 @@ Global
 		Release|Windows-x86 = Release|Windows-x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|Android.ActiveCfg = Debug|Android
-		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|Android.Build.0 = Debug|Android
-		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|Android.Deploy.0 = Debug|Android
+		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|Android.ActiveCfg = Release|Android
+		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|Android.Build.0 = Release|Android
+		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|Android.Deploy.0 = Release|Android
 		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|iOS.ActiveCfg = Debug|iOS
 		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|iOS.Build.0 = Debug|iOS
 		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|iOS.Deploy.0 = Debug|iOS

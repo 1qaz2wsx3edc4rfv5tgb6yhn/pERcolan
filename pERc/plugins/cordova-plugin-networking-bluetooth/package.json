@@ -1,0 +1,32 @@
+{
+  "name": "cordova-plugin-networking-bluetooth",
+  "version": "1.0.3",
+  "description": "Bluetooth Networking Plugin for Cordova",
+  "cordova": {
+    "id": "cordova-plugin-networking-bluetooth",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "hg",
+    "url": "https://bitbucket.org/bugnano/cordova-plugin-networking-bluetooth"
+  },
+  "keywords": [
+    "cordova",
+    "bluetooth",
+    "network",
+    "networking",
+    "rfcomm",
+    "socket",
+    "client",
+    "server",
+    "peer",
+    "p2p",
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "author": "Franco Bugnano",
+  "license": "Apache 2.0",
+  "homepage": "https://bitbucket.org/bugnano/cordova-plugin-networking-bluetooth#readme"
+}
