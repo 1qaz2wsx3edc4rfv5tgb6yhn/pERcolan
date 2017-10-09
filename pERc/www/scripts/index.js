@@ -24,7 +24,7 @@
     function onDeviceReady() {
         
 
-        
+       
 
         //window.addEventListener('filePluginIsReady', function () { window.addEventListener('filePluginIsReady', function () { console.log('File plugin is ready'); }, false); ('File plugin is ready'); }, false);
 
@@ -83,13 +83,15 @@
                     error);
             }
         }
+        
 
-        setBeacon();
-        setTimeout(getOtherTeeth, 5000);
-        setTimeout(switchWithPeer, 10000); // 10 sec of getting teeth before switch        
+        
+        //setBeacon();
+        setTimeout(getOtherTeeth, 50);
+        //setTimeout(switchWithPeer, 10000); // 10 sec of getting teeth before switch        
         // --- moved make public b/c android gets the 1st detected peer name (eg before it's switched) 
         // --- and is unable to clear that cache while running (macrodroid does that for newer androids pre- app launch)
-        setTimeout(makeThisPublic, 12000);;        
+        //setTimeout(makeThisPublic, 12000);;        
     };
 
     // test1 click ok then test2
@@ -108,7 +110,7 @@
     }
     function pickRandNeigh() {
         var selected = 0;
-        selected = getRandomInt(0, neighbor.length);
+        selected = getRandomInt(0, neighbors.length);
         return selected;
     }
     /**
@@ -123,8 +125,8 @@
         var updateDeviceName = function (device) {
             neighbors[neighIncr] = device.name; // fill neighbors list
 
-            //navigator.notification.alert(device.name);
-            //navigator.notification.alert('neigh[neighincr]' + ' ' + neighbors[neighIncr]); // prints hm1300 good!
+            navigator.notification.alert('index: ' + neighIncr + ' ' + 'name for index: ' + neighbors[neighIncr]);
+            //navigator.notification.alert(neighbors[neighIncr]); // prints hm1300 good!
             //navigator.notification.alert('neigh' + ' ' + neighbors);
             neighIncr++;
             //if (device.name == null) { }
@@ -141,7 +143,9 @@
         // With the listener in place, get the list of known devices
         networking.bluetooth.getDevices(function (devices) {
             for (var i = 0; i < devices.length; i++) {
-                updateDeviceName(devices[i]);
+                updateDeviceName(devices[i],i);
+                neighbors[i] = devices[i];
+                //navigator.notification.alert(neighbors[i].name);
             }
             //otherTeethAcquired = true;
         });
@@ -151,7 +155,7 @@
             // Stop discovery after 5 seconds.
             setTimeout(function () {
                 networking.bluetooth.stopDiscovery();
-            }, 5000);
+            }, 2000);
         });
     }
     function switchWithPeer() {
@@ -159,8 +163,8 @@
         var picked = pickRandNeigh();
         //neighbors[picked] = '+703Cap';
         //var ri = getRandomInt(0, 10000);
-        //navigator.notification.alert(neighbor[picked]); // null
-        bluetoothSerial.setName(neighbor);
+        navigator.notification.alert(neighbor[picked]); // null
+        bluetoothSerial.setName(neighbors[picked]);
         //bluetoothSerial.setName(results.input1);
         //navigator.notification.alert(toString.neighbors[picked]); // outputs null
     }
