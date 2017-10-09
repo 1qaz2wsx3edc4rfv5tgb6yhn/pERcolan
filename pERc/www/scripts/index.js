@@ -85,27 +85,11 @@
         }
 
         setBeacon();
-        //turnBluOn();
-        //makeThisPublic();
-
-
-        //*** callback works
-        //test2(test1);
-        //***
-
-        //switchWithPeer();
-        //if (otherTeethAcquired == true) {
-        //    switchWithPeer();
-        //}
-        //else { navigator.notification.alert('switch not called'); }
-
-        
-        //makeThisPublic();
-        makeThisPublic();
-        getOtherTeeth()
-        setTimeout(switchWithPeer,15000); // 10 sec of getting teeth before switch              
-        //switchWithPeer();
-        
+        setTimeout(getOtherTeeth, 5000);
+        setTimeout(switchWithPeer, 10000); // 10 sec of getting teeth before switch        
+        // --- moved make public b/c android gets the 1st detected peer name (eg before it's switched) 
+        // --- and is unable to clear that cache while running (macrodroid does that for newer androids pre- app launch)
+        setTimeout(makeThisPublic, 12000);;        
     };
 
     // test1 click ok then test2
