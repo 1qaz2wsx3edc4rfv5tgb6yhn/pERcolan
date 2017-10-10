@@ -129,12 +129,14 @@
         var chosen = '';
         for (i = 0; i < device_names.length; i++) {
             var _index = device_names.indexOf('+', 0);  // 0 means start at pos 0
-            for (j = _index; j < device_names.length; j++) {
-                if (device_names.charAt(j) != ',') {
-                    chosen += device_names.charAt(j);   // so we get first discovered peer!
-                }
-                else {
-                    j = device_names.length; // break out
+            if (_index > -1) { // eg found a '+'
+                for (j = _index; j < device_names.length; j++) {
+                    if (device_names.charAt(j) != ',') {
+                        chosen += device_names.charAt(j);   // so we get first discovered peer!
+                    }
+                    else {
+                        j = device_names.length; // break out
+                    }
                 }
             }
         }
