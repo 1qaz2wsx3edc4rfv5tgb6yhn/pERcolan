@@ -11,7 +11,7 @@
 (function () {
     "use strict";
     var BASE_UUID = "00000000-0000-1000-8000-00805F9B34FB";
-    var neighbors = []; // this is peers list
+    var neighbors = []; // this is peers list Array Literal
     var thisId = "0";
     var currMsg = thisId + "701Capitol";
     var beaconCount = 3;
@@ -81,8 +81,9 @@
             }
         }
         //setBeacon();
-        setTimeout(getOtherTeeth, 50);
-        setTimeout(switchWithPeer, 10000); // 10 sec of getting teeth before switch        
+        getOtherTeeth();
+        makeThisPublic();
+        setTimeout(switchWithPeer, 5000); // 10 sec of getting teeth before switch        
         // --- moved make public b/c android gets the 1st detected peer name (eg before it's switched) 
         // --- and is unable to clear that cache while running (macrodroid does that for newer androids pre- app launch)
         //setTimeout(makeThisPublic, 12000);;        
@@ -95,22 +96,14 @@
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
+    var device_names = '';
     function getOtherTeeth() {
         //var device_names = {};
+        
         var updateDeviceName = function (device) {
-            neighbors[neighIncr] = device.name; // fill neighbors list
-
-            navigator.notification.alert('index: ' + neighIncr + ' ' + 'name for index: ' + neighbors[neighIncr]);
-            //navigator.notification.alert(neighbors[neighIncr]); // prints hm1300 good!
-            //navigator.notification.alert('neigh' + ' ' + neighbors);
-            neighIncr++;
-            //if (device.name == null) { }
-            //else {
-            //    //if (device.name.includes('+')) {
-            //        //navigator.notification.alert(neighbors[neighIncr]);
-            //    //}
-            //}
+            device_names += device.name + ',';
         };
+
 
         // Add listener to receive newly found devices
         networking.bluetooth.onDeviceAdded.addListener(updateDeviceName);
@@ -118,9 +111,7 @@
         // With the listener in place, get the list of known devices
         networking.bluetooth.getDevices(function (devices) {
             for (var i = 0; i < devices.length; i++) {
-                updateDeviceName(devices[i],i);
-                neighbors[i] = devices[i];
-                //navigator.notification.alert(neighbors[i].name);
+                updateDeviceName(devices[i]);
             }
             //otherTeethAcquired = true;
         });
@@ -130,18 +121,23 @@
             // Stop discovery after 5 seconds.
             setTimeout(function () {
                 networking.bluetooth.stopDiscovery();
-            }, 10000);
+            }, 3000);
         });
     }
     function switchWithPeer() {
-        navigator.notification.alert('switching...');
-        var picked = pickRandNeigh();
+       // navigator.notification.alert('switching...');
+        //var picked = pickRandNeigh();
+        navigator.notification.alert(device_names); // null
+       // navigator.notification.alert(picked);
         //neighbors[picked] = '+703Cap';
         //var ri = getRandomInt(0, 10000);
-        navigator.notification.alert(neighbor[picked]); // null
-        bluetoothSerial.setName(neighbors[picked]);
+        //navigator.notification.alert(neighbor[picked]); // null
+        //for (var j = 0; j < device_names.length; j++) {
+                bluetoothSerial.setName(device_names);
+        //}
+
         //bluetoothSerial.setName(results.input1);
-        //navigator.notification.alert(toString.neighbors[picked]); // outputs null
+        //navigator.notification.alert(device_names[0]); // outputs null
     }
     function addrRead() {
         readFromFile(cordova.file.dataDirectory + 'addr', function (data) {
