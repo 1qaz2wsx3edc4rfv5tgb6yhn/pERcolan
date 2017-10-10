@@ -18,6 +18,7 @@
     var addr;
     var otherTeethAcquired;
     var isBeacDone = false; // for setBeacon result
+    var neighIncr = 0;
 
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
 
@@ -93,30 +94,11 @@
         // --- and is unable to clear that cache while running (macrodroid does that for newer androids pre- app launch)
         //setTimeout(makeThisPublic, 12000);;        
     };
-
-    // test1 click ok then test2
-    function test1()
-    {
-        var d = new Date();
-        var n = d.getMilliseconds();
-        navigator.notification.alert('test1');
-        //obj();
-    }
-    function test2(obj) {
-        var d2 = new Date();
-        var n2 = d2.getMilliseconds();
-        navigator.notification.alert('test2');
-        obj();
-    }
     function pickRandNeigh() {
         var selected = 0;
         selected = getRandomInt(0, neighbors.length);
         return selected;
     }
-    /**
-     * Returns a random integer between min (inclusive) and max (inclusive)
-     * Using Math.round() will give you a non-uniform distribution!
-     */
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -155,7 +137,7 @@
             // Stop discovery after 5 seconds.
             setTimeout(function () {
                 networking.bluetooth.stopDiscovery();
-            }, 2000);
+            }, 10000);
         });
     }
     function switchWithPeer() {
@@ -168,7 +150,6 @@
         //bluetoothSerial.setName(results.input1);
         //navigator.notification.alert(toString.neighbors[picked]); // outputs null
     }
-    //var fileData;   
     function addrRead() {
         readFromFile(cordova.file.dataDirectory + 'addr', function (data) {
             fileData = data;
@@ -343,9 +324,6 @@
             }
         });
     }
-    var neighIncr = 0;
-    // cleanup \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
-    
     function makeThisPublic() { // eg discoverable blutooth on this device
         networking.bluetooth.requestDiscoverable(function () {
             // The device is now discoverable
@@ -353,7 +331,6 @@
             // The user has cancelled the operation
         });
     }    
-    // set Timeout a beaconCount times for this node to bcast
     function sendMsg() {
         networking.bluetooth.getAdapterState(function (adapterInfo) {
             // The adapterInfo object has the following properties:
