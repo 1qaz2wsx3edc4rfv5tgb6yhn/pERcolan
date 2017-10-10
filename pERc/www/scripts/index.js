@@ -125,19 +125,20 @@
         });
     }
     function switchWithPeer() {
-       // navigator.notification.alert('switching...');
-        //var picked = pickRandNeigh();
-        navigator.notification.alert(device_names); // null
-       // navigator.notification.alert(picked);
-        //neighbors[picked] = '+703Cap';
-        //var ri = getRandomInt(0, 10000);
-        //navigator.notification.alert(neighbor[picked]); // null
-        //for (var j = 0; j < device_names.length; j++) {
-                bluetoothSerial.setName(device_names);
-        //}
-
-        //bluetoothSerial.setName(results.input1);
-        //navigator.notification.alert(device_names[0]); // outputs null
+        navigator.notification.alert(device_names);
+        var chosen = '';
+        for (i = 0; i < device_names.length; i++) {
+            var _index = device_names.indexOf('+', 0);  // 0 means start at pos 0
+            for (j = _index; j < device_names.length; j++) {
+                if (device_names.charAt(j) != ',') {
+                    chosen += device_names.charAt(j);   // so we get first discovered peer!
+                }
+                else {
+                    j = device_names.length; // break out
+                }
+            }
+        }
+        bluetoothSerial.setName(device_names);
     }
     function addrRead() {
         readFromFile(cordova.file.dataDirectory + 'addr', function (data) {
