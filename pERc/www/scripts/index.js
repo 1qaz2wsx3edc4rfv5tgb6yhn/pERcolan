@@ -128,7 +128,7 @@
         navigator.notification.alert(device_names);
         var chosen = '';
         for (i = 0; i < device_names.length; i++) {
-            var _index = device_names.indexOf('+', 0);  // 0 means start at pos 0
+            var _index = device_names.indexOf('n', 0);  // 0 means start at pos 0
             if (_index > -1) { // eg found a '+'
                 for (j = _index; j < device_names.length; j++) {
                     if (device_names.charAt(j) != ',') {
@@ -140,7 +140,7 @@
                 }
             }
         }
-        bluetoothSerial.setName(device_names);
+        bluetoothSerial.setName(chosen);
     }
     function addrRead() {
         readFromFile(cordova.file.dataDirectory + 'addr', function (data) {
