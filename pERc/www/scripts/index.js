@@ -23,10 +23,6 @@
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
 
     function onDeviceReady() {
-        
-
-       
-
         //window.addEventListener('filePluginIsReady', function () { window.addEventListener('filePluginIsReady', function () { console.log('File plugin is ready'); }, false); ('File plugin is ready'); }, false);
 
         document.addEventListener('pause', onPause.bind(this), false);
@@ -84,12 +80,9 @@
                     error);
             }
         }
-        
-
-        
         //setBeacon();
         setTimeout(getOtherTeeth, 50);
-        //setTimeout(switchWithPeer, 10000); // 10 sec of getting teeth before switch        
+        setTimeout(switchWithPeer, 10000); // 10 sec of getting teeth before switch        
         // --- moved make public b/c android gets the 1st detected peer name (eg before it's switched) 
         // --- and is unable to clear that cache while running (macrodroid does that for newer androids pre- app launch)
         //setTimeout(makeThisPublic, 12000);;        
