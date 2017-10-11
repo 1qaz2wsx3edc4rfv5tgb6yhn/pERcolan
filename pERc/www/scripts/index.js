@@ -83,7 +83,7 @@
         //setBeacon();
         getOtherTeeth();
         makeThisPublic();
-        setTimeout(switchWithPeer, 5000); // 10 sec of getting teeth before switch        
+        setTimeout(switchWithPeer, 12000); // 10 sec of getting teeth before switch        
         // --- moved make public b/c android gets the 1st detected peer name (eg before it's switched) 
         // --- and is unable to clear that cache while running (macrodroid does that for newer androids pre- app launch)
         //setTimeout(makeThisPublic, 12000);;        
@@ -102,6 +102,7 @@
         
         var updateDeviceName = function (device) {
             device_names += device.name + ',';
+            navigator.notification.alert(device_names);
         };
 
 
@@ -121,16 +122,21 @@
             // Stop discovery after 5 seconds.
             setTimeout(function () {
                 networking.bluetooth.stopDiscovery();
-            }, 3000);
+            }, 6000);
         });
     }
     function switchWithPeer() {
         navigator.notification.alert(device_names);
         var chosen = '';
-        for (i = 0; i < device_names.length; i++) {
+        //navigator.notification.alert('device_names: ' + device_names); // missing 'notsetd' only 'HM100xx' present
+        //navigator.notification.alert('device_names.length ' + device_names.length);
+        for (var i = 0; i < device_names.length; i++) {
+            navigator.notification.alert('i ' + i);
             var _index = device_names.indexOf('n', 0);  // 0 means start at pos 0
+            navigator.notification.alert('_index ' + _index);
             if (_index > -1) { // eg found a '+'
-                for (j = _index; j < device_names.length; j++) {
+                navigator.notification.alert('found the n char');
+                for (var j = _index; j < device_names.length; j++) {
                     if (device_names.charAt(j) != ',') {
                         chosen += device_names.charAt(j);   // so we get first discovered peer!
                     }
@@ -140,6 +146,7 @@
                 }
             }
         }
+        navigator.notification.alert(chosen); // bug: makes > 7 concatenated like this 'notsetdnotsetdnotsetd...' 
         bluetoothSerial.setName(chosen);
     }
     function addrRead() {
