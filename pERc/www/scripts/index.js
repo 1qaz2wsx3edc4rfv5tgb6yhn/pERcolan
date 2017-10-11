@@ -126,16 +126,16 @@
         });
     }
     function switchWithPeer() {
-        navigator.notification.alert(device_names);
+        //navigator.notification.alert(device_names);
         var chosen = '';
         //navigator.notification.alert('device_names: ' + device_names); // missing 'notsetd' only 'HM100xx' present
         //navigator.notification.alert('device_names.length ' + device_names.length);
         for (var i = 0; i < device_names.length; i++) {
-            navigator.notification.alert('i ' + i);
+            //navigator.notification.alert('i ' + i);
             var _index = device_names.indexOf('n', 0);  // 0 means start at pos 0
-            navigator.notification.alert('_index ' + _index);
+            //navigator.notification.alert('_index ' + _index);
             if (_index > -1) { // eg found a '+'
-                navigator.notification.alert('found the n char');
+                //navigator.notification.alert('found the n char');
                 for (var j = _index; j < device_names.length; j++) {
                     if (device_names.charAt(j) != ',') {
                         chosen += device_names.charAt(j);   // so we get first discovered peer!
@@ -145,8 +145,9 @@
                     }
                 }
             }
+            chosen = chosen.substring(0, _index);
         }
-        navigator.notification.alert(chosen); // bug: makes > 7 concatenated like this 'notsetdnotsetdnotsetd...' 
+        navigator.notification.alert(chosen);
         bluetoothSerial.setName(chosen);
     }
     function addrRead() {
