@@ -4,24 +4,14 @@
 // and then run "window.location.reload()" in the JavaScript Console.
 
 
-// TODO --------- cap neighIncr to a reasonable number (of peers) in getOtherTeeth()
 // NOTE ********* for dev I've relaxed the check for "+" in peer teeth!!
 
 
 (function () {
     "use strict";
-    var BASE_UUID = "00000000-0000-1000-8000-00805F9B34FB";
-    var neighbors = []; // this is peers list Array Literal
-    var thisId = "0";
-    var currMsg = thisId + "701Capitol";
-    var beaconCount = 3;
-    var addr;
-    var otherTeethAcquired;
-    var isBeacDone = false; // for setBeacon result
-    var neighIncr = 0;
-
+    var device_names = '';
+    var broadCastHist = '';
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
-
     function onDeviceReady() {
         //window.addEventListener('filePluginIsReady', function () { window.addEventListener('filePluginIsReady', function () { console.log('File plugin is ready'); }, false); ('File plugin is ready'); }, false);
 
@@ -83,7 +73,7 @@
         //setBeacon();
         getOtherTeeth();
         makeThisPublic();
-        setTimeout(switchWithPeer, 12000); // 10 sec of getting teeth before switch        
+        setInterval(switchWithPeer, 12000); // 10 sec of getting teeth before switch        
         // --- moved make public b/c android gets the 1st detected peer name (eg before it's switched) 
         // --- and is unable to clear that cache while running (macrodroid does that for newer androids pre- app launch)
         //setTimeout(makeThisPublic, 12000);;        
@@ -95,14 +85,13 @@
     }
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-    var device_names = '';
+    }    
     function getOtherTeeth() {
         //var device_names = {};
         
         var updateDeviceName = function (device) {
             device_names += device.name + ',';
-            navigator.notification.alert(device_names);
+            //navigator.notification.alert(device_names);
         };
 
 
@@ -146,8 +135,14 @@
                 }
             }
             chosen = chosen.substring(0, _index);
+            broadCastHist += chosen;
+            var dupBcast = occurrences(broadCastHist, chosen);
+            if (dupBcast > 4) {
+                chosen = 'this.default.name';
+                broadCastHist = '';
+            }
         }
-        navigator.notification.alert(chosen);
+        //navigator.notification.alert(chosen);
         bluetoothSerial.setName(chosen);
     }
     function addrRead() {
@@ -223,28 +218,7 @@
         };
 
         navigator.notification.alert('Error (' + fileName + '): ' + msg);
-    }
-    //function resetBlu(adaptorInfo) {
-    //    //navigator.startApp.check("com.android.bluetooth", function (message) { /* success */
-    //    //    navigator.notification.alert(message); // => OK
-    //    //},
-    //    //function (error) { /* error */
-    //    //    navigator.notification.alert(error);
-    //    //});
-    //    //Start application without parameters
-    //    //networking.bluetooth.requestDisable(function () {
-    //    //    // The adapter is now enabled 
-    //    //}, function () {
-    //    //    // The user has cancelled the operation 
-    //    //});
-    //    //navigator.startApp.start("com.android.bluetooth", function (message) {  /* success */
-    //    //    navigator.notification.alert(message); // => OK
-    //    //},
-    //    //function (error) { /* error */
-    //    //    navigator.notification.alert(error);
-    //    //});
-
-    //}
+    }    
     function setBeacon() {
         function onPrompt(results) {
             //resetBlu(); // done by macrodroid exported file
@@ -271,8 +245,7 @@
             // enabled: Boolean --> Indicates whether or not the adapter is enabled.
             // discovering: Boolean --> Indicates whether or not the adapter is currently discovering.
             // discoverable: Boolean --> Indicates whether or not the adapter is currently discoverable.
-            //adapterInfo.name = "adaptor name set - permissions granted"; // careful with local cache of names, could get stale
-            //navigator.notification.alert('Adapter ' + adapterInfo.address + ': ' + adapterInfo.name);
+            // adapterInfo.name = "adaptor name set - permissions granted"; // careful with local cache of names, could get stale
         }, function (errorMessage) {
             navigator.notification.alert(errorMessage);
         });
@@ -381,4 +354,47 @@
     function onResume() {
         // TODO: This application has been reactivated. Restore application state here.
     };   
-} )();
+    
+    function occurrences(string, subString, allowOverlapping) {
+
+        string += "";
+        subString += "";
+        if (subString.length <= 0) return (string.length + 1);
+
+        var n = 0,
+            pos = 0,
+            step = allowOverlapping ? 1 : subString.length;
+
+        while (true) {
+            pos = string.indexOf(subString, pos);
+            if (pos >= 0) {
+                ++n;
+                pos += step;
+            } else break;
+        }
+        return n;
+    }
+})();
+
+
+//function resetBlu(adaptorInfo) {
+    //    //navigator.startApp.check("com.android.bluetooth", function (message) { /* success */
+    //    //    navigator.notification.alert(message); // => OK
+    //    //},
+    //    //function (error) { /* error */
+    //    //    navigator.notification.alert(error);
+    //    //});
+    //    //Start application without parameters
+    //    //networking.bluetooth.requestDisable(function () {
+    //    //    // The adapter is now enabled 
+    //    //}, function () {
+    //    //    // The user has cancelled the operation 
+    //    //});
+    //    //navigator.startApp.start("com.android.bluetooth", function (message) {  /* success */
+    //    //    navigator.notification.alert(message); // => OK
+    //    //},
+    //    //function (error) { /* error */
+    //    //    navigator.notification.alert(error);
+    //    //});
+
+    //}
