@@ -10,7 +10,8 @@
 (function () {
     "use strict";
     var device_names = '';
-    var broadCastHist = '';
+    var broadCastHist = [""] ; // list of msgs recv [i] = name
+    //var alreadySent = 0;    // count of switches made
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
     function onDeviceReady() {
         //window.addEventListener('filePluginIsReady', function () { window.addEventListener('filePluginIsReady', function () { console.log('File plugin is ready'); }, false); ('File plugin is ready'); }, false);
@@ -70,10 +71,14 @@
                     error);
             }
         }
-        //setBeacon();
+        setBeacon();
         getOtherTeeth();
         makeThisPublic();
-        setInterval(switchWithPeer, 12000); // 10 sec of getting teeth before switch        
+        setTimeout(switchWithPeer, 12000);
+        //(function () {
+        //    setInterval(switchWithPeer, 12000);
+        //})();
+        // 10 sec of getting teeth before switch
         // --- moved make public b/c android gets the 1st detected peer name (eg before it's switched) 
         // --- and is unable to clear that cache while running (macrodroid does that for newer androids pre- app launch)
         //setTimeout(makeThisPublic, 12000);;        
@@ -116,34 +121,45 @@
     }
     function switchWithPeer() {
         //navigator.notification.alert(device_names);
+        //****
+        //****
+        //device_names = ["n"];
         var chosen = '';
         //navigator.notification.alert('device_names: ' + device_names); // missing 'notsetd' only 'HM100xx' present
         //navigator.notification.alert('device_names.length ' + device_names.length);
         for (var i = 0; i < device_names.length; i++) {
             //navigator.notification.alert('i ' + i);
+            
             var _index = device_names.indexOf('n', 0);  // 0 means start at pos 0
             //navigator.notification.alert('_index ' + _index);
             if (_index > -1) { // eg found a '+'
                 //navigator.notification.alert('found the n char');
                 for (var j = _index; j < device_names.length; j++) {
-                    if (device_names.charAt(j) != ',') {
-                        chosen += device_names.charAt(j);   // so we get first discovered peer!
+                    if (device_names[j] != ',') {
+                        chosen += device_names[j];   // so we get first discovered peer!
                     }
                     else {
                         j = device_names.length; // break out
                     }
                 }
-            }
+            } 
+            //navigator.notification.alert('chosen' + chosen);
+
+            var dupBcast = 0;
             chosen = chosen.substring(0, _index);
-            broadCastHist += chosen;
-            var dupBcast = occurrences(broadCastHist, chosen);
-            if (dupBcast > 4) {
-                chosen = 'this.default.name';
-                broadCastHist = '';
-            }
+            //broadCastHist.push(chosen);
+            //for (var i = 0; i < broadCastHist.length; i++) {
+            //    dupBcast += occurrences(broadCastHist[i], chosen);
+            //    if (dupBcast > 4) {
+            //        chosen = thisAddr;
+            //        navigator.notification.alert('4 repeat found ' + chosen);
+            //        broadCastHist[i] = chosen;
+            //    }
+            //}
         }
-        //navigator.notification.alert(chosen);
-        bluetoothSerial.setName(chosen);
+        navigator.notification.alert('chosen' + chosen);
+        bluetoothSerial.setName(chosen); // setting new name to all "n"'s
+        
     }
     function addrRead() {
         readFromFile(cordova.file.dataDirectory + 'addr', function (data) {
@@ -218,14 +234,15 @@
         };
 
         navigator.notification.alert('Error (' + fileName + '): ' + msg);
-    }    
+    }   
+    var thisAddr = ''
     function setBeacon() {
         function onPrompt(results) {
             //resetBlu(); // done by macrodroid exported file
             turnBluOn();
-            addr = results.input1;
+            thisAddr = results.input1;
             //var ri = getRandomInt(0, 10000);
-            bluetoothSerial.setName(addr);
+            bluetoothSerial.setName(thisAddr);
             
         }
 
@@ -353,8 +370,7 @@
     }
     function onResume() {
         // TODO: This application has been reactivated. Restore application state here.
-    };   
-    
+    };       
     function occurrences(string, subString, allowOverlapping) {
 
         string += "";
