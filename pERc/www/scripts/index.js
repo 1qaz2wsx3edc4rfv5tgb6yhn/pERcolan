@@ -129,7 +129,7 @@
         //navigator.notification.alert('device_names.length ' + device_names.length);
         for (var i = 0; i < device_names.length; i++) {
             //navigator.notification.alert('i ' + i);
-            
+             
             var _index = device_names.indexOf('n', 0);  // 0 means start at pos 0
             //navigator.notification.alert('_index ' + _index);
             if (_index > -1) { // eg found a '+'
