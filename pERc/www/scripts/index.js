@@ -1,17 +1,43 @@
-﻿// For an introduction to the Blank template, see the following documentation:
-// http://go.microsoft.com/fwlink/?LinkID=397704
-// To debug code on page load in cordova-simulate or on Android devices/emulators: launch your app, set breakpoints, 
-// and then run "window.location.reload()" in the JavaScript Console.
+﻿// 
+// Lawrence Sweet
+// Peer EmeRgency Communications - PEERC - "help beacons when Cellular/Internet are down" 
+// PERC beta v0.5 idea copyright 2016 - 2017
+//
+// usage: uses a bluetooth name as an emergency beacon, after a (natural) disaster, to other bluetooth devices with your address and other data relevant to your rescue.
+//        if bluetooth peers in range also have the PERC client, you will be (randomly) "paired" (not in bluetooth sense) to a PERC peer at which point:
+//        You and your peer will set each others bluetooth name as your own, and, at setintervals, this will continue until your rescue beacon 
+//        has permeated 100m-contiguous PERC clients which may or may not be able to assist (upon receiving your address) or may be a fire, police, etc
+//        associated PERC installed cell/bluetooth (android) device.
+//
+// this app requires MacroDroid (free) + imported actions file:
+// reason PERC cannot programmatically perform bluetooth share service cache clearance (root required) ,
+// but Macrodroid action recorder for android handles that with this importable action file:
+//  https://drive.google.com/open?id=0B9G6-6K0q4geTDdsd3ZzM296cHM
+//  ...that stops/restarts bluetooth share service where bluetooth names are cached (and seem to get stale consistently hence this workaround)
 
 
-// NOTE ********* for dev I've relaxed the check for "+" in peer teeth!!
+//  5 * 0.1 items todo: 
+//  1) read file based default emergency beacon message from device and set that = this.name
+//  2) impose any needed de-spamm filter to prevent peer saturation and deadlock/instability
+//  3) add sensor data that may be relevant, including auto-load when vibration/Delta(spatial)/etc => earthquake, severe collision, and...?
+//  4) refactor while loop/etc into synchronous calls of async 'tooth functions
+//  5) switch only with beacons carrying the 'perc token' = "+" 
 
 
 (function () {
     "use strict";
     var device_names = '';
-    var broadCastHist = [""] ; // list of msgs recv [i] = name
-    //var alreadySent = 0;    // count of switches made
+    var broadCastHist = [""]; 
+    // try, not, to, look,
+    var step0 = 0;
+    var step1 = 0;
+    var step2 = 0;
+    var step3 = 0;
+    var step4 = 0;
+    var step5 = 0;
+
+    var thisAddr = '';
+
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
     function onDeviceReady() {
         //window.addEventListener('filePluginIsReady', function () { window.addEventListener('filePluginIsReady', function () { console.log('File plugin is ready'); }, false); ('File plugin is ready'); }, false);
@@ -71,9 +97,8 @@
                     error);
             }
         }
-      
+        // horrible flow control looping, callbacks difficult to debug will refactor later
         step0 = 1;
-        //setTimeout(function(){ }, 6000);
         while (step5 == 0) {
             if (step0) {
                 turnBluOn();
@@ -89,23 +114,9 @@
         }
         (function () {
             setInterval(switchWithPeer, 12000);
-        })();
-        //pERcolate(); // only '1' displays
-        //if (status) { // true means pERc is running! time to engage switching on an interval
-        //    (function () {
-        //        avigator.notification.alert('5');
-        //        setInterval(switchWithPeer, 12000);
-        //    })();
-        //}
+        })();        
     };
-   
-    function callChain() {
-        //navigator.notification.alert('1running', test2);
-        navigator.notification.alert('2running');
-    }
-    function first() {
-        navigator.notification.alert('1running------------------------------------------------------------------');
-    }
+
     function pickRandNeigh() {
         var selected = 0;
         selected = getRandomInt(0, neighbors.length);
@@ -115,14 +126,11 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }    
     function getOtherTeeth() {
-        //var device_names = {};
         
         var updateDeviceName = function (device) {
             device_names += device.name + ',';
-            //navigator.notification.alert(device_names);
         };
-
-
+        
         // Add listener to receive newly found devices
         networking.bluetooth.onDeviceAdded.addListener(updateDeviceName);
 
@@ -131,7 +139,6 @@
             for (var i = 0; i < devices.length; i++) {
                 updateDeviceName(devices[i]);
             }
-            //otherTeethAcquired = true;
         });
 
         // Now begin the discovery process.
@@ -142,23 +149,10 @@
                 step4 = 1;
             }, 6000);
         });
-        //avigator.notification.alert('3');
     }
-
-    var step0 = 0;
-    var step1 = 0;
-    var step2 = 0;
-    var step3 = 0;
-    var step4 = 0;
-    var step5 = 0;
+    
     function switchWithPeer() {
-        //navigator.notification.alert(device_names);
-        //****
-        //****
-        //device_names = ["n"];
         var chosen = '';
-        //navigator.notification.alert('device_names: ' + device_names); // missing 'notsetd' only 'HM100xx' present
-        //navigator.notification.alert('device_names.length ' + device_names.length);
         for (var i = 0; i < device_names.length; i++) {
             //navigator.notification.alert('i ' + i);
              
@@ -178,9 +172,7 @@
             ////navigator.notification.alert('chosen' + chosen);
             
             ////var dupBcast = 0;
-
-            broadCastHist.push(device_names[0]);
-            
+            broadCastHist.push(device_names[0]);            
             //for (var i = 0; i < broadCastHist.length; i++) {
             //    dupBcast += occurrences(broadCastHist[i], chosen);
             //    if (dupBcast > 4) {
@@ -193,7 +185,7 @@
         //chosen = chosen.substring(0, _index);
         navigator.notification.alert('chosen' + device_names[0]);
         //navigator.notification.alert('hist' + broadCastHist);
-        bluetoothSerial.setName(device_names[0]); // setting new name to all "n"'s
+        bluetoothSerial.setName(device_names[0]); 
         
     }
     //function resetBlu(adaptorInfo) {
@@ -291,7 +283,6 @@
 
         navigator.notification.alert('Error (' + fileName + '): ' + msg);
     }   
-    var thisAddr = ''
     function setBeacon() {
         function onPrompt(results) {
             //resetBlu(); // done by macrodroid exported file
@@ -327,9 +318,6 @@
         var enabled = false;
         networking.bluetooth.getAdapterState(function (adapterInfo) {
             enabled = adapterInfo.enabled;
-            //navigator.notification.alert('this tooth is enabled');
-
-            //adapterInfo.name = "name";
         });
 
         networking.bluetooth.onAdapterStateChanged.addListener(function (adapterInfo) {
@@ -354,8 +342,6 @@
 
         var onSuccess = function (result) {
            
-            //SSIDs = result;
-            //navigator.notification.alert(result);
         };
         var onError = function (result) {
             navigator.notification.alert(result);
@@ -410,57 +396,7 @@
             // The user has cancelled the operation
             });
         step3 = 1;
-    }    
-    function sendMsg() {
-        networking.bluetooth.getAdapterState(function (adapterInfo) {
-            // The adapterInfo object has the following properties:
-            // address: String --> The address of the adapter, in the format 'XX:XX:XX:XX:XX:XX'.
-            // name: String --> The human-readable name of the adapter.
-            // enabled: Boolean --> Indicates whether or not the adapter is enabled.
-            // discovering: Boolean --> Indicates whether or not the adapter is currently discovering.
-            // discoverable: Boolean --> Indicates whether or not the adapter is currently discoverable.
-            //adapterInfo.name = currMsg; // careful with local cache of names, could get stale
-            navigator.notification.alert('Adapter ' + adapterInfo.address + ': ' + adapterInfo.name);
-        }, function (errorMessage) {
-            navigator.notification.alert(errorMessage);
-        });
-
-        var enabled = false;
-        networking.bluetooth.getAdapterState(function (adapterInfo) {
-            enabled = adapterInfo.enabled;
-            navigator.notification.alert('this tooth is enabled');
-        });
-        //});
-    }
-    function recvMsgSetup() {
-        networking.bluetooth.onReceive.addListener(function (receiveInfo) {
-            if (receiveInfo.socketId !== socketId) {
-                return;
-            }
-
-            // receiveInfo.data is an ArrayBuffer.
-        });
-    }    
-    function receiveInfo() {
-        // 1) check for recv.groupId header
-        // 2) if no header assign this.header if (this.groupId.count < grpLimit)
-        // 3) add to grpList based upon 2)
-        // 4) if recv.groupId different ignore
-        // 5) if in group already, make currMsg = incoming.Msg
-    }
-    function onPause() {
-        // TODO: This application has been suspended. Save application state here.
-    };
-    function connectSocket() {
-        networking.bluetooth.connect(device.address, BASE_UUID, function (socketId) {
-            // Profile implementation here.
-        }, function (errorMessage) {
-            navigator.notification.alert('Connection failed: ' + errorMessage);
-        });
-    }
-    function onResume() {
-        // TODO: This application has been reactivated. Restore application state here.
-    };       
+    }      
     function occurrences(string, subString, allowOverlapping) {
 
         string += "";
@@ -482,6 +418,9 @@
     }
 })();
 
+// does not perform bluetooth share service cache clearnce as intended in this form, ... 
+// Macrodroid action recorder for android handles that with this importable action file:
+//  https://drive.google.com/open?id=0B9G6-6K0q4geTDdsd3ZzM296cHM
 
 //function resetBlu(adaptorInfo) {
     //    //navigator.startApp.check("com.android.bluetooth", function (message) { /* success */
