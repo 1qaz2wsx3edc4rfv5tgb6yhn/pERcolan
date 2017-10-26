@@ -71,18 +71,41 @@
                     error);
             }
         }
-        setBeacon();
-        getOtherTeeth();
-        makeThisPublic();
-        setTimeout(switchWithPeer, 12000);
-        //(function () {
-        //    setInterval(switchWithPeer, 12000);
-        //})();
-        // 10 sec of getting teeth before switch
-        // --- moved make public b/c android gets the 1st detected peer name (eg before it's switched) 
-        // --- and is unable to clear that cache while running (macrodroid does that for newer androids pre- app launch)
-        //setTimeout(makeThisPublic, 12000);;        
+      
+        step0 = 1;
+        //setTimeout(function(){ }, 6000);
+        while (step5 == 0) {
+            if (step0) {
+                turnBluOn();
+                step1 = 1;
+            }
+            if (step1) { setBeacon(); }
+            if (step2) { makeThisPublic(); }
+            if (step3) {
+                getOtherTeeth();
+                step4 = 1;
+            }
+            if (step4) { step5 = 1; }
+        }
+        (function () {
+            setInterval(switchWithPeer, 12000);
+        })();
+        //pERcolate(); // only '1' displays
+        //if (status) { // true means pERc is running! time to engage switching on an interval
+        //    (function () {
+        //        avigator.notification.alert('5');
+        //        setInterval(switchWithPeer, 12000);
+        //    })();
+        //}
     };
+   
+    function callChain() {
+        //navigator.notification.alert('1running', test2);
+        navigator.notification.alert('2running');
+    }
+    function first() {
+        navigator.notification.alert('1running------------------------------------------------------------------');
+    }
     function pickRandNeigh() {
         var selected = 0;
         selected = getRandomInt(0, neighbors.length);
@@ -116,9 +139,18 @@
             // Stop discovery after 5 seconds.
             setTimeout(function () {
                 networking.bluetooth.stopDiscovery();
+                step4 = 1;
             }, 6000);
         });
+        //avigator.notification.alert('3');
     }
+
+    var step0 = 0;
+    var step1 = 0;
+    var step2 = 0;
+    var step3 = 0;
+    var step4 = 0;
+    var step5 = 0;
     function switchWithPeer() {
         //navigator.notification.alert(device_names);
         //****
@@ -130,24 +162,25 @@
         for (var i = 0; i < device_names.length; i++) {
             //navigator.notification.alert('i ' + i);
              
-            var _index = device_names.indexOf('n', 0);  // 0 means start at pos 0
-            //navigator.notification.alert('_index ' + _index);
-            if (_index > -1) { // eg found a '+'
-                //navigator.notification.alert('found the n char');
-                for (var j = _index; j < device_names.length; j++) {
-                    if (device_names[j] != ',') {
-                        chosen += device_names[j];   // so we get first discovered peer!
-                    }
-                    else {
-                        j = device_names.length; // break out
-                    }
-                }
-            } 
-            //navigator.notification.alert('chosen' + chosen);
+            //var _index = 0; //device_names.indexOf('P', 0);  // 0 means start at pos 0
+            ////navigator.notification.alert('_index ' + _index);
+            //if (_index > -1) { // eg found a '+'
+            //    //navigator.notification.alert('found the n char');
+            //    for (var j = _index; j < device_names.length; j++) {
+            //        if (device_names[j] != ',') {
+            //            chosen = device_names[j];   // so we get first discovered peer!
+            //        }
+            //        else {
+            //            j = device_names.length; // break out
+            //        }
+            //    }
+            //} 
+            ////navigator.notification.alert('chosen' + chosen);
+            
+            ////var dupBcast = 0;
 
-            var dupBcast = 0;
-            chosen = chosen.substring(0, _index);
-            //broadCastHist.push(chosen);
+            broadCastHist.push(device_names[0]);
+            
             //for (var i = 0; i < broadCastHist.length; i++) {
             //    dupBcast += occurrences(broadCastHist[i], chosen);
             //    if (dupBcast > 4) {
@@ -157,10 +190,33 @@
             //    }
             //}
         }
-        navigator.notification.alert('chosen' + chosen);
-        bluetoothSerial.setName(chosen); // setting new name to all "n"'s
+        //chosen = chosen.substring(0, _index);
+        navigator.notification.alert('chosen' + device_names[0]);
+        //navigator.notification.alert('hist' + broadCastHist);
+        bluetoothSerial.setName(device_names[0]); // setting new name to all "n"'s
         
     }
+    //function resetBlu(adaptorInfo) {
+    //    navigator.startApp.check("com.android.bluetooth", function (message) { /* success */
+    //        navigator.notification.alert(message); // => OK
+    //    },
+    //    function (error) { /* error */
+    //        navigator.notification.alert(error);
+    //    });
+    //    //Start application without parameters
+    //    networking.bluetooth.requestDisable(function () {
+    //        // The adapter is now enabled 
+    //    }, function () {
+    //        // The user has cancelled the operation 
+    //    });
+    //    navigator.startApp.start("com.android.bluetooth", function (message) {  /* success */
+    //        navigator.notification.alert(message); // => OK
+    //    },
+    //    function (error) { /* error */
+    //        navigator.notification.alert(error);
+    //    });
+
+    //}
     function addrRead() {
         readFromFile(cordova.file.dataDirectory + 'addr', function (data) {
             fileData = data;
@@ -239,7 +295,7 @@
     function setBeacon() {
         function onPrompt(results) {
             //resetBlu(); // done by macrodroid exported file
-            turnBluOn();
+            //turnBluOn();
             thisAddr = results.input1;
             //var ri = getRandomInt(0, 10000);
             bluetoothSerial.setName(thisAddr);
@@ -253,6 +309,7 @@
             ['Ok'],             // buttonLabels
             getRandomInt(1,999999999)                // defaultText
         );
+        step2 = 1;
     }
     function turnBluOn() {
         networking.bluetooth.getAdapterState(function (adapterInfo) {
@@ -289,19 +346,51 @@
 
         networking.bluetooth.requestEnable(function () {
             // The adapter is now enabled
+          
             
         }, function () {
             // The user has cancelled the operation
         });
 
         var onSuccess = function (result) {
+           
             //SSIDs = result;
             //navigator.notification.alert(result);
         };
         var onError = function (result) {
             navigator.notification.alert(result);
+          
         };
+        step0 = 0;
     }
+    //function turnBluOff() {
+    //    networking.bluetooth.getAdapterState(function (adapterInfo) {
+    //        // The adapterInfo object has the following properties:
+    //        // address: String --> The address of the adapter, in the format 'XX:XX:XX:XX:XX:XX'.
+    //        // name: String --> The human-readable name of the adapter.
+    //        // enabled: Boolean --> Indicates whether or not the adapter is enabled.
+    //        // discovering: Boolean --> Indicates whether or not the adapter is currently discovering.
+    //        // discoverable: Boolean --> Indicates whether or not the adapter is currently discoverable.
+    //        // adapterInfo.name = "adaptor name set - permissions granted"; // careful with local cache of names, could get stale
+    //    }, function (errorMessage) {
+    //        navigator.notification.alert(errorMessage);
+    //    });
+        
+    //    var enabled = false;
+    //    networking.bluetooth.getAdapterState(function (adapterInfo) {
+    //        enabled = adapterInfo.disabled;
+    //    });
+        
+
+    //    var onSuccess = function (result) {
+    //        //SSIDs = result;
+    //        //navigator.notification.alert(result);
+    //    };
+    //    var onError = function (result) {
+    //        navigator.notification.alert(result);
+    //    };
+    //    networking.bluetooth.
+    //}
     function getMyBluDevices() {
         networking.bluetooth.getDevices(function (devices) {
             for (var i = 0; i < devices.length; i++) {
@@ -319,7 +408,8 @@
             // The device is now discoverable
         }, function () {
             // The user has cancelled the operation
-        });
+            });
+        step3 = 1;
     }    
     function sendMsg() {
         networking.bluetooth.getAdapterState(function (adapterInfo) {
