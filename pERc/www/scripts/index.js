@@ -1,12 +1,12 @@
 ﻿// 
 // Lawrence Sweet
-// Peer EmeRgency Communications - PEERC - "help beacons when Cellular/Internet are down" 
+// Peer EmeRgency Communications Outside of Linked Area Networks - PEERCOLAN - "Bluetooth Help beacons (in urban environments), with address and/or other locating information, when Cellular/Internet are down after a natural disaster" 
 // PERC beta v0.5 idea copyright 2016 - 2017
 //
 // usage: uses a bluetooth name as an emergency beacon, after a (natural) disaster, to other bluetooth devices with your address and other data relevant to your rescue.
 //        if bluetooth peers in range also have the PERC client, you will be (randomly) "paired" (not in bluetooth sense) to a PERC peer at which point:
 //        You and your peer will set each others bluetooth name as your own, and, at setintervals, this will continue until your rescue beacon 
-//        has permeated 100m-contiguous PERC clients which may or may not be able to assist (upon receiving your address) or may be a fire, police, etc
+//        has permeated 100m-contiguous PERC clients which may or may not be able to assist (upon receiving your address/txtmsg) or may be a fire, police, etc
 //        associated PERC installed cell/bluetooth (android) device.
 //
 // this app requires MacroDroid (free) + imported actions file:
