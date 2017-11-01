@@ -115,9 +115,11 @@
         //(function () {
         //    setInterval(switchWithPeer, 12000);
         //})();
-		//
-		turnBluOn(test1(test2(test3)));
-		
+        //
+        turnBluOn(setBeacon(makeThisPublic(getOtherTeeth(stop))));
+		(function () {
+            setInterval(switchWithPeer, 12000);
+        })();
     };
     function onPause() {
         // TODO: This application has been suspended. Save application state here.
@@ -142,8 +144,8 @@
 	}
 	function test3(){
 		navigator.notification.alert('3');
-	}
-	
+    }
+    var stop = function () { };
     function pickRandNeigh() {
         var selected = 0;
         selected = getRandomInt(0, neighbors.length);
