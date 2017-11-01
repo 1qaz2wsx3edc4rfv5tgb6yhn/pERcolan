@@ -98,25 +98,52 @@
             }
         }
         // horrible flow control looping, callbacks difficult to debug will refactor later
-        step0 = 1;
-        while (step5 == 0) {
-            if (step0) {
-                turnBluOn();
-                step1 = 1;
-            }
-            if (step1) { setBeacon(); }
-            if (step2) { makeThisPublic(); }
-            if (step3) {
-                getOtherTeeth();
-                step4 = 1;
-            }
-            if (step4) { step5 = 1; }
-        }
-        (function () {
-            setInterval(switchWithPeer, 12000);
-        })();        
+        //step0 = 1;
+        //while (step5 == 0) {
+        //    if (step0) {
+        //        turnBluOn();
+        //        step1 = 1;
+        //    }
+        //    if (step1) { setBeacon(); }
+        //    if (step2) { makeThisPublic(); }
+        //    if (step3) {
+        //        getOtherTeeth();
+        //        step4 = 1;
+        //    }
+        //    if (step4) { step5 = 1; }
+        //}
+        //(function () {
+        //    setInterval(switchWithPeer, 12000);
+        //})();
+		//
+		turnBluOn(test1(test2(test3)));
+		
+    };
+    function onPause() {
+        // TODO: This application has been suspended. Save application state here.
+    };
+    function connectSocket() {
+        networking.bluetooth.connect(device.address, BASE_UUID, function (socketId) {
+            // Profile implementation here.
+        }, function (errorMessage) {
+            navigator.notification.alert('Connection failed: ' + errorMessage);
+        });
+    }
+    function onResume() {
+        // TODO: This application has been reactivated. Restore application state here.
     };
 
+
+	function test1(){
+		navigator.notification.alert('1');	
+	}
+	function test2(){
+		navigator.notification.alert('2');
+	}
+	function test3(){
+		navigator.notification.alert('3');
+	}
+	
     function pickRandNeigh() {
         var selected = 0;
         selected = getRandomInt(0, neighbors.length);
@@ -302,7 +329,7 @@
         );
         step2 = 1;
     }
-    function turnBluOn() {
+    function turnBluOn(obj1) {
         networking.bluetooth.getAdapterState(function (adapterInfo) {
             // The adapterInfo object has the following properties:
             // address: String --> The address of the adapter, in the format 'XX:XX:XX:XX:XX:XX'.
