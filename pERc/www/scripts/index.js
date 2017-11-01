@@ -114,7 +114,7 @@
         //}
         //(function () {
         //    setInterval(switchWithPeer, 12000);
-        //})();
+        //})(); //
         //
         turnBluOn(setBeacon(makeThisPublic(getOtherTeeth(stop))));
 		(function () {
