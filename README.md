@@ -6,7 +6,7 @@ Lawrence Sweet Peer EmeRgency Communications Outside of Linked Area Networks - P
 
 usage: uses a bluetooth name as an emergency beacon, after a (natural) disaster, to other bluetooth devices with your address and other data relevant to your rescue. 
 
-if bluetooth peers in range also have the PERC client, you will be (randomly) "paired" (not in bluetooth sense) to a PERC peer at which point: You and your peer will set each others bluetooth name as your own, and, at setintervals, this will continue until your rescue beacon has permeated 100m-contiguous PERC clients which may or may not be able to assist (upon receiving your address/txtmsg) or may be a fire, police, etc associated PERC installed cell/bluetooth (android) device.
+if bluetooth peers in range also have the PERC client, you will be (randomly) "paired" (not in bluetooth sense) to a PERC peer at which point: You and your peer will set each others bluetooth name as your own [name switching forms the pnp route mechanics], and, at setintervals, this will continue until your rescue beacon has permeated 100m-contiguous PERC clients which may or may not be able to assist (upon receiving your address/txtmsg) or may be a fire, police, etc associated PERC installed cell/bluetooth (android) device.
 
 Clients will be able to set what coded instructions in a pERc message to look for, i.e, a fire station pERc client will automatically respond and alert the bearer if the pERc message contains the code that means somebody is buried in rubble, for instance. These codes will cache on all pERc clients, and any client will have an easy to initiate, or automatic, code sent out to the pERcnet depending upon victim action and/or sensor data freom victim.
 
