@@ -13,7 +13,6 @@ this app requires MacroDroid (free) + imported actions file: reason PERC cannot 
 4 * 0.1 items todo:
 
 * read file based default emergency beacon message from device and set that = this.name
-* impose any needed de-spam filter to prevent peer saturation and deadlock/instability (see percolate-pnp-sim.html) file at root of project
+* impose any needed de-spam filter to prevent peer saturation and deadlock/instability (see "pERcolan/percolate-pnp-sim.html") file.
 * add sensor data that may be relevant, including auto-load when vibration/Delta(spatial)/etc => earthquake, severe collision, and...?
-
 * switch only with beacons carrying the 'perc token' = "+"
