@@ -4,7 +4,11 @@ pERcolan - Peer Emergency Communications Outside of Linked Area Networks
 
 Lawrence Sweet Peer EmeRgency Communications Outside of Linked Area Networks - PERCOLAN - "Bluetooth Help beacons (in urban environments), with address and/or other locating information, when Cellular/Internet are down after a natural disaster" PERC beta v0.6 idea copyright 2015 - 2017
 
-usage: uses a bluetooth name as an emergency beacon, after a (natural) disaster, to other bluetooth devices with your address and other data relevant to your rescue. if bluetooth peers in range also have the PERC client, you will be (randomly) "paired" (not in bluetooth sense) to a PERC peer at which point: You and your peer will set each others bluetooth name as your own, and, at setintervals, this will continue until your rescue beacon has permeated 100m-contiguous PERC clients which may or may not be able to assist (upon receiving your address/txtmsg) or may be a fire, police, etc associated PERC installed cell/bluetooth (android) device.
+usage: uses a bluetooth name as an emergency beacon, after a (natural) disaster, to other bluetooth devices with your address and other data relevant to your rescue. 
+
+if bluetooth peers in range also have the PERC client, you will be (randomly) "paired" (not in bluetooth sense) to a PERC peer at which point: You and your peer will set each others bluetooth name as your own, and, at setintervals, this will continue until your rescue beacon has permeated 100m-contiguous PERC clients which may or may not be able to assist (upon receiving your address/txtmsg) or may be a fire, police, etc associated PERC installed cell/bluetooth (android) device.
+
+Clients will be able to set what coded instructions in a pERc message to look for, i.e, a fire station pERc client will automatically respond and alert the bearer if the pERc message contains the code that means somebody is buried in rubble, for instance. These codes will cache on all pERc clients, and any client will have an easy to initiate, or automatic, code sent out to the pERcnet depending upon victim action and/or sensor data freom victim.
 
 Network saturation prevention is a planned feature; this branch is not implementing the "group" idea simulated in "pERcolan/percolate-pnp-sim.html", which has saturation prevention built in.
 
@@ -12,7 +16,7 @@ this app requires MacroDroid (free) + imported actions file: reason PERC cannot 
 
 4 * 0.1 items todo:
 
-* read file based default emergency beacon message from device and set that = this.name
+* read file based default emergency beacon message from device and set that = this.name and add msg to queue.
 * impose any needed de-spam filter to prevent peer saturation and deadlock/instability (see "pERcolan/percolate-pnp-sim.html") file.
-* add sensor data that may be relevant, including auto-load when vibration/Delta(spatial)/etc => earthquake, severe collision, and...?
+* add sensor data and victim signaling including auto-load when vibration/Delta(spatial)/etc => earthquake, severe collision, and...?
 * switch only with beacons carrying the 'perc token' = "+"
