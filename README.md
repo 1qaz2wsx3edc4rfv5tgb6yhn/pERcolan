@@ -10,7 +10,9 @@ if bluetooth peers in range also have the PERC client, you will be (randomly) "p
 
 Clients will be able to set what coded instructions in a pERc message to look for, i.e, a fire station pERc client will automatically respond and alert the bearer if the pERc message contains the code that means somebody is buried in rubble, for instance. These codes will cache on all pERc clients, and any client will have an easy to initiate, or automatic, code sent out to the pERcnet depending upon victim action and/or sensor data from victim.
 
-Network saturation prevention is a planned feature; this branch is not implementing the "group" idea simulated in "pERcolan/percolate-p2p-sim.html", which has saturation prevention built in.
+[] 2nd p2p routing option: Network saturation prevention - a planned feature; this code branch is not implementing the "group" idea simulated in "pERcolan/percolate-p2p-sim.html", which has saturation prevention built in.
+
+[] 3rd p2p routing option: "Embedded Bifurcation Of Address Routing (EBOAR)" details to come asap. Uses local designation of node addresses (logistic output at sufficiently high n=iteration number so that # cycles >> number of nodes in local/emergency scope community) where address if logistic recursion of n and branch selection/routing is done at every peer which selects next upper branch if incoming address/logistic output < desired/destination, and vice versa.  
 
 this app requires MacroDroid (free) + imported actions file: reason PERC cannot programmatically perform bluetooth share service cache clearance (root required) , but Macrodroid action recorder for android handles that with this importable action file: https://drive.google.com/open?id=0B9G6-6K0q4geTDdsd3ZzM296cHM ...that stops/restarts bluetooth share service where bluetooth names are cached (and seem to get stale consistently hence this workaround)
 
