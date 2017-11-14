@@ -1,6 +1,6 @@
 pERcolan
 
-pERcolan - Peer Emergency Communications Outside of Linked Area Networks
+pERcolan - Peer EmeRgency Communications Outside of Linked Area Networks
 
 Lawrence Sweet Peer EmeRgency Communications Outside of Linked Area Networks - PERCOLAN - "Bluetooth Help beacons (in urban environments), with address and/or other locating information, when Cellular/Internet are down after a natural disaster" PERC beta v0.6 idea, and eBOAR copyright 2015 - 2017 lawrence h. sweet.
 
