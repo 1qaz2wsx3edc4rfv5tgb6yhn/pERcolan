@@ -12,6 +12,6 @@ Clients will be able to set what coded instructions in a pERc message to look fo
 
 [] 2nd p2p routing option: Network saturation prevention - a planned feature; this code branch is not implementing the "group" idea simulated in "pERcolan/percolate-p2p-sim.html", which has saturation prevention built in.
 
-[] 3rd p2p routing option: eBOAR is a logistic map based peer to peer mapping technique encapsulating network ID, node addressing, and node messaging within a local web of bluetooth devices called a 'pERcolan'. See eboar.png.
+[] 3rd p2p routing option: eBOAR is a logistic map based peer to peer mapping technique encapsulating network ID, node addressing, and node messaging (DNS-lessly) within a local web of bluetooth devices called a 'pERcolan'. See eboar.png. An advantage of the eboar technique is that dropped/unreachable nodes in any particular pERcolan id mapping can be circumvented by a 'next nearest' neighbor approach that connects to an alternate peer that also knows how to move forward +i and backword -i through the pERcolan - so routing is distributed and fault tolerant.
 
 this app requires MacroDroid (free) + imported actions file: reason PERC cannot programmatically perform bluetooth share service cache clearance (root required) , but Macrodroid action recorder for android handles that with this importable action file: https://drive.google.com/open?id=0B9G6-6K0q4geTDdsd3ZzM296cHM ...that stops/restarts bluetooth share service where bluetooth names are cached (and seem to get stale consistently hence this workaround).
