@@ -27,7 +27,7 @@
     "use strict";
     var device_names = '';
     var broadCastHist = [""]; 
-
+    var isResponder = 0;
     var thisAddr = '';
 
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
@@ -93,8 +93,24 @@
         }
 
     }
+    function buildResponder(isResponder) {
+        navigator.notification.prompt(
+            'Are you a First Responder? (if Yes, you will collect unique emergency requests on your device)',  // message
+            onPrompt,                  // callback to invoke
+            'For First Responders',    // title
+            ['Yes', 'No']             // buttonLabels
+        );
+        function onPrompt(results) {
+            if (results.buttonIndex = 1) {
+                isResponder = 1;
+                firstRunAddressStore();
+            }
+        }
+
+    }
     function onDeviceReady() {
-        setupTasks();        
+        buildResponder();
+        //setupTasks();        
         /*   
            * flow control map
            turnBluOn();
@@ -105,10 +121,10 @@
              switchWithPeer();
            "end loop"
         */
-        turnBluOn(setBeacon(makeThisPublic(getOtherTeeth(stop))));
-		(function () {
-            setInterval(switchWithPeer, 12000);
-        })();
+       // turnBluOn(setBeacon(makeThisPublic(getOtherTeeth(stop))));
+		//(function () {
+       //     setInterval(switchWithPeer, 12000);
+      //  })();
     };
     function onPause() {
         // TODO: This application has been suspended. Save application state here.
@@ -169,14 +185,18 @@
         });
     }
     
-    function switchWithPeer() {
-        var chosen = '';
-        for (var i = 0; i < device_names.length; i++) {
-            broadCastHist.push(device_names[0]);   
+    function switchWithPeer() {       
+        if (isResponder == 1) {
+            // get unique emergency requests into a list for display 
         }
-        navigator.notification.alert('chosen' + device_names[0]);
-        bluetoothSerial.setName(device_names[0]); 
-        
+        else {
+            var chosen = '';
+            for (var i = 0; i < device_names.length; i++) {
+                broadCastHist.push(device_names[0]);
+            }
+            navigator.notification.alert('chosen' + device_names[0]);
+            bluetoothSerial.setName(device_names[0]);
+        }
     }
     // needs f***in root
     //function resetBlu(adaptorInfo) {
@@ -205,11 +225,10 @@
             navigator.notification.alert('data: ' + toString.fileData);
         });
     }
-    function firstRunAddressStore(callBack) {
-        //writeToFile('addr', { addr: '701cap' });
-        //callback(function () { navigator.notification.alert('file data: ' + fileData); });
-        //navigator.notification.alert('data dir path: ' + cordova.file.dataDirectory);
-        callBack();
+    function firstRunAddressStore() {
+        writeToFile('addr', { addr: '701cap' });
+        callback(function () { navigator.notification.alert('file data: ' + fileData); });
+        navigator.notification.alert('data dir path: ' + cordova.file.dataDirectory);
     }
     function readFromFile(fileName, cb) {
         var pathToFile = fileName;
