@@ -27,22 +27,17 @@
     "use strict";
     var device_names = '';
     var broadCastHist = [""]; 
-    // try, not, to, look,
-    var step0 = 0;
-    var step1 = 0;
-    var step2 = 0;
-    var step3 = 0;
-    var step4 = 0;
-    var step5 = 0;
 
     var thisAddr = '';
 
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
-    function onDeviceReady() {
+    function setupTasks() {
         //window.addEventListener('filePluginIsReady', function () { window.addEventListener('filePluginIsReady', function () { console.log('File plugin is ready'); }, false); ('File plugin is ready'); }, false);
 
         document.addEventListener('pause', onPause.bind(this), false);
         document.addEventListener('resume', onResume.bind(this), false);
+
+
 
         // TODO: Cordova has been loaded. Perform any initialization that requires Cordova here.
         var parentElement = document.getElementById('deviceready');
@@ -96,25 +91,20 @@
                     error);
             }
         }
-        // horrible flow control looping, callbacks difficult to debug will refactor later
-        //step0 = 1;
-        //while (step5 == 0) {
-        //    if (step0) {
-        //        turnBluOn();
-        //        step1 = 1;
-        //    }
-        //    if (step1) { setBeacon(); }
-        //    if (step2) { makeThisPublic(); }
-        //    if (step3) {
-        //        getOtherTeeth();
-        //        step4 = 1;
-        //    }
-        //    if (step4) { step5 = 1; }
-        //}
-        //(function () {
-        //    setInterval(switchWithPeer, 12000);
-        //})(); //
-        //
+
+    }
+    function onDeviceReady() {
+        setupTasks();        
+        /*   
+           * flow control map
+           turnBluOn();
+           setBeacon(); 
+           makeThisPublic();
+           "loop"
+             getOtherTeeth();
+             switchWithPeer();
+           "end loop"
+        */
         turnBluOn(setBeacon(makeThisPublic(getOtherTeeth(stop))));
 		(function () {
             setInterval(switchWithPeer, 12000);
@@ -182,40 +172,13 @@
     function switchWithPeer() {
         var chosen = '';
         for (var i = 0; i < device_names.length; i++) {
-            //navigator.notification.alert('i ' + i);
-             
-            //var _index = 0; //device_names.indexOf('P', 0);  // 0 means start at pos 0
-            ////navigator.notification.alert('_index ' + _index);
-            //if (_index > -1) { // eg found a '+'
-            //    //navigator.notification.alert('found the n char');
-            //    for (var j = _index; j < device_names.length; j++) {
-            //        if (device_names[j] != ',') {
-            //            chosen = device_names[j];   // so we get first discovered peer!
-            //        }
-            //        else {
-            //            j = device_names.length; // break out
-            //        }
-            //    }
-            //} 
-            ////navigator.notification.alert('chosen' + chosen);
-            
-            ////var dupBcast = 0;
-            broadCastHist.push(device_names[0]);            
-            //for (var i = 0; i < broadCastHist.length; i++) {
-            //    dupBcast += occurrences(broadCastHist[i], chosen);
-            //    if (dupBcast > 4) {
-            //        chosen = thisAddr;
-            //        navigator.notification.alert('4 repeat found ' + chosen);
-            //        broadCastHist[i] = chosen;
-            //    }
-            //}
+            broadCastHist.push(device_names[0]);   
         }
-        //chosen = chosen.substring(0, _index);
         navigator.notification.alert('chosen' + device_names[0]);
-        //navigator.notification.alert('hist' + broadCastHist);
         bluetoothSerial.setName(device_names[0]); 
         
     }
+    // needs f***in root
     //function resetBlu(adaptorInfo) {
     //    navigator.startApp.check("com.android.bluetooth", function (message) { /* success */
     //        navigator.notification.alert(message); // => OK
@@ -235,7 +198,6 @@
     //    function (error) { /* error */
     //        navigator.notification.alert(error);
     //    });
-
     //}
     function addrRead() {
         readFromFile(cordova.file.dataDirectory + 'addr', function (data) {
@@ -376,35 +338,7 @@
           
         };
         step0 = 0;
-    }
-    //function turnBluOff() {
-    //    networking.bluetooth.getAdapterState(function (adapterInfo) {
-    //        // The adapterInfo object has the following properties:
-    //        // address: String --> The address of the adapter, in the format 'XX:XX:XX:XX:XX:XX'.
-    //        // name: String --> The human-readable name of the adapter.
-    //        // enabled: Boolean --> Indicates whether or not the adapter is enabled.
-    //        // discovering: Boolean --> Indicates whether or not the adapter is currently discovering.
-    //        // discoverable: Boolean --> Indicates whether or not the adapter is currently discoverable.
-    //        // adapterInfo.name = "adaptor name set - permissions granted"; // careful with local cache of names, could get stale
-    //    }, function (errorMessage) {
-    //        navigator.notification.alert(errorMessage);
-    //    });
-        
-    //    var enabled = false;
-    //    networking.bluetooth.getAdapterState(function (adapterInfo) {
-    //        enabled = adapterInfo.disabled;
-    //    });
-        
-
-    //    var onSuccess = function (result) {
-    //        //SSIDs = result;
-    //        //navigator.notification.alert(result);
-    //    };
-    //    var onError = function (result) {
-    //        navigator.notification.alert(result);
-    //    };
-    //    networking.bluetooth.
-    //}
+    }    
     function getMyBluDevices() {
         networking.bluetooth.getDevices(function (devices) {
             for (var i = 0; i < devices.length; i++) {
@@ -446,10 +380,9 @@
     }
 })();
 
-// does not perform bluetooth share service cache clearnce as intended in this form, ... 
+// need f***** root 
 // Macrodroid action recorder for android handles that with this importable action file:
 //  https://drive.google.com/open?id=0B9G6-6K0q4geTDdsd3ZzM296cHM
-
 //function resetBlu(adaptorInfo) {
     //    //navigator.startApp.check("com.android.bluetooth", function (message) { /* success */
     //    //    navigator.notification.alert(message); // => OK
@@ -470,4 +403,4 @@
     //    //    navigator.notification.alert(error);
     //    //});
 
-    //}
+//}
