@@ -167,7 +167,7 @@
                 updateDeviceName(devices[i]);
             }
         });
-
+        //
         // Now begin the discovery process.
         networking.bluetooth.startDiscovery(function () {
             // Stop discovery after 5 seconds.
