@@ -92,6 +92,8 @@
             }
         }
 
+        
+
     }
     function buildResponder(isResponder) {
         navigator.notification.prompt(
@@ -101,8 +103,9 @@
             ['Yes', 'No']              // buttonLabels
         );
         function onPrompt(results) {
-            if (results.buttonIndex = 1) {
-                isResponder = 1;
+            if (results.buttonIndex == 1) {
+                var storage = window.localStorage;
+                storage.setItem("isResponder", "1");
             }
         }
 
@@ -175,11 +178,13 @@
     }
     
     function switchWithPeer() {       
-        if (isResponder == 1) {
+        var storage = window.localStorage;  
+        var isResp = storage.getItem("isResponder");
+        if (isResp == "1") {
             // get unique emergency requests into a list for display 
-            var storage = window.localStorage;            
-            storage.setItem(key, device_names[0]); // Pass a key name and its value to add or update that key.
-            var value = storage.getItem(key); // Pass a key name to get its value.
+                      
+            storage.setItem("devices", device_names[0]); // Pass a key name and its value to add or update that key.
+            var value = storage.getItem("devices"); // Pass a key name to get its value.
             navigator.notification.alert('collected requests: ' + value);
             //storage.removeItem(key) // Pass a key name to remove that key from storage.
         }
