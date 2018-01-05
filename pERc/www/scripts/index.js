@@ -98,12 +98,11 @@
             'Are you a First Responder? (if Yes, you will collect unique emergency requests on your device)',  // message
             onPrompt,                  // callback to invoke
             'For First Responders',    // title
-            ['Yes', 'No']             // buttonLabels
+            ['Yes', 'No']              // buttonLabels
         );
         function onPrompt(results) {
             if (results.buttonIndex = 1) {
                 isResponder = 1;
-                firstRunAddressStore();
             }
         }
 
@@ -141,16 +140,6 @@
     };
 
 
-	function test1(){
-		navigator.notification.alert('1');	
-	}
-	function test2(){
-		navigator.notification.alert('2');
-	}
-	function test3(){
-		navigator.notification.alert('3');
-    }
-    var stop = function () { };
     function pickRandNeigh() {
         var selected = 0;
         selected = getRandomInt(0, neighbors.length);
@@ -188,6 +177,11 @@
     function switchWithPeer() {       
         if (isResponder == 1) {
             // get unique emergency requests into a list for display 
+            var storage = window.localStorage;            
+            storage.setItem(key, device_names[0]); // Pass a key name and its value to add or update that key.
+            var value = storage.getItem(key); // Pass a key name to get its value.
+            navigator.notification.alert('collected requests: ' + value);
+            //storage.removeItem(key) // Pass a key name to remove that key from storage.
         }
         else {
             var chosen = '';
@@ -219,79 +213,7 @@
     //        navigator.notification.alert(error);
     //    });
     //}
-    function addrRead() {
-        readFromFile(cordova.file.dataDirectory + 'addr', function (data) {
-            fileData = data;
-            navigator.notification.alert('data: ' + toString.fileData);
-        });
-    }
-    function firstRunAddressStore() {
-        writeToFile('addr', { addr: '701cap' });
-        callback(function () { navigator.notification.alert('file data: ' + fileData); });
-        navigator.notification.alert('data dir path: ' + cordova.file.dataDirectory);
-    }
-    function readFromFile(fileName, cb) {
-        var pathToFile = fileName;
-        window.resolveLocalFileSystemURL(pathToFile, function (fileEntry) {
-            fileEntry.file(function (file) {
-                navigator.notification.alert('in reader file= ' + toString.file);
-                var reader = new FileReader();
-
-                reader.onloadend = function (e) {
-                    cb(JSON.parse(this.result));
-                };
-
-                reader.readAsText(file);
-            }, errorHandler.bind(null, fileName));
-        }, errorHandler.bind(null, fileName));
-    }
-    function writeToFile(fileName, data) {
-        data = JSON.stringify(data, null, '\t');
-        window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function (directoryEntry) {
-            directoryEntry.getFile(fileName, { create: true }, function (fileEntry) {
-                fileEntry.createWriter(function (fileWriter) {
-                    fileWriter.onwriteend = function (e) {
-                        // for real-world usage, you might consider passing a success callback
-                        //navigator.notification.alert('Write of file "' + fileName + '"" completed.');
-                    };
-
-                    fileWriter.onerror = function (e) {
-                        // you could hook this up with our global error handler, or pass in an error callback
-                        navigator.notification.alert('Write failed: ' + e.toString());
-                    };
-
-                    var blob = new Blob([data], { type: 'text/plain' });
-                    fileWriter.write(blob);
-                }, errorHandler.bind(null, fileName));
-            }, errorHandler.bind(null, fileName));
-        }, errorHandler.bind(null, fileName));
-    }
-    var errorHandler = function (fileName, e) {
-        var msg = '';
-
-        switch (e.code) {
-            case FileError.QUOTA_EXCEEDED_ERR:
-                msg = 'Storage quota exceeded';
-                break;
-            case FileError.NOT_FOUND_ERR:
-                msg = 'File not found';
-                break;
-            case FileError.SECURITY_ERR:
-                msg = 'Security error';
-                break;
-            case FileError.INVALID_MODIFICATION_ERR:
-                msg = 'Invalid modification';
-                break;
-            case FileError.INVALID_STATE_ERR:
-                msg = 'Invalid state';
-                break;
-            default:
-                msg = 'Unknown error';
-                break;
-        };
-
-        navigator.notification.alert('Error (' + fileName + '): ' + msg);
-    }   
+    
     function setBeacon() {
         function onPrompt(results) {
             //resetBlu(); // done by macrodroid exported file
