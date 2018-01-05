@@ -108,6 +108,7 @@
 
     }
     function onDeviceReady() {
+        setupTasks();
         buildResponder();
         //setupTasks();        
         /*   
@@ -120,10 +121,10 @@
              switchWithPeer();
            "end loop"
         */
-       // turnBluOn(setBeacon(makeThisPublic(getOtherTeeth(stop))));
-		//(function () {
-       //     setInterval(switchWithPeer, 12000);
-      //  })();
+        turnBluOn(setBeacon(makeThisPublic(getOtherTeeth(stop))));
+		(function () {
+            setInterval(switchWithPeer, 12000);
+        })();
     };
     function onPause() {
         // TODO: This application has been suspended. Save application state here.
@@ -169,7 +170,6 @@
             // Stop discovery after 5 seconds.
             setTimeout(function () {
                 networking.bluetooth.stopDiscovery();
-                step4 = 1;
             }, 6000);
         });
     }
@@ -188,7 +188,7 @@
             for (var i = 0; i < device_names.length; i++) {
                 broadCastHist.push(device_names[0]);
             }
-            navigator.notification.alert('chosen' + device_names[0]);
+            navigator.notification.alert('chosen ' + device_names[0]);
             bluetoothSerial.setName(device_names[0]);
         }
     }
@@ -231,7 +231,6 @@
             ['Ok'],             // buttonLabels
             getRandomInt(1,999999999)                // defaultText
         );
-        step2 = 1;
     }
     function turnBluOn(obj1) {
         networking.bluetooth.getAdapterState(function (adapterInfo) {
@@ -278,7 +277,6 @@
             navigator.notification.alert(result);
           
         };
-        step0 = 0;
     }    
     function getMyBluDevices() {
         networking.bluetooth.getDevices(function (devices) {
@@ -298,7 +296,6 @@
         }, function () {
             // The user has cancelled the operation
             });
-        step3 = 1;
     }      
     function occurrences(string, subString, allowOverlapping) {
 
