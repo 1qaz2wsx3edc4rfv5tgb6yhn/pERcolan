@@ -25,7 +25,7 @@
 
 (function () {
     "use strict";
-    var device_names = '';
+    var device_names = [""];
     var broadCastHist = [""]; 
     var isResponder = 0;
     var thisAddr = '';
@@ -36,7 +36,7 @@
 
         document.addEventListener('pause', onPause.bind(this), false);
         document.addEventListener('resume', onResume.bind(this), false);
-
+        respondees.addEventListener('click', function () { navigator.notification.alert('respondee messages: ' + broadCastHist); }, false);
 
 
         // TODO: Cordova has been loaded. Perform any initialization that requires Cordova here.
@@ -124,10 +124,10 @@
              switchWithPeer();
            "end loop"
         */
-        turnBluOn(setBeacon(makeThisPublic(getOtherTeeth(stop))));
-		(function () {
-            setInterval(switchWithPeer, 12000);
-        })();
+        //turnBluOn(setBeacon(makeThisPublic(getOtherTeeth(stop))));
+		//(function () {
+        //    setInterval(switchWithPeer, 12000);
+        //})();
     };
     function onPause() {
         // TODO: This application has been suspended. Save application state here.
@@ -144,9 +144,9 @@
     };
 
 
-    function pickRandNeigh() {
+    function pickRandNeigh(numNeighs) {
         var selected = 0;
-        selected = getRandomInt(0, neighbors.length);
+        selected = getRandomInt(0, numNeighs);
         return selected;
     }
     function getRandomInt(min, max) {
@@ -155,7 +155,7 @@
     function getOtherTeeth() {
         
         var updateDeviceName = function (device) {
-            device_names += device.name + ',';
+            device_names.push(device.name);
         };
         
         // Add listener to receive newly found devices
@@ -182,19 +182,18 @@
         var isResp = storage.getItem("isResponder");
         if (isResp == "1") {
             // get unique emergency requests into a list for display 
-                      
-            storage.setItem("devices", device_names[0]); // Pass a key name and its value to add or update that key.
+            broadCastHist.push(device_names[0] + '---');
+            storage.setItem("devices", broadCastHist); // Pass a key name and its value to add or update that key.
             var value = storage.getItem("devices"); // Pass a key name to get its value.
             navigator.notification.alert('collected requests: ' + value);
             //storage.removeItem(key) // Pass a key name to remove that key from storage.
         }
         else {
             var chosen = '';
-            for (var i = 0; i < device_names.length; i++) {
-                broadCastHist.push(device_names[0]);
-            }
-            navigator.notification.alert('chosen ' + device_names[0]);
-            bluetoothSerial.setName(device_names[0]);
+            var picked = pickRandNeigh(device_names.length);
+            broadCastHist.push(broadCastHist[picked]);
+            navigator.notification.alert('chosen ' + broadCastHist[picked]);
+            bluetoothSerial.setName(broadCastHist[picked]);
         }
     }
     // needs f***in root
