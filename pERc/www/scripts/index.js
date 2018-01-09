@@ -107,6 +107,10 @@
                 var storage = window.localStorage;
                 storage.setItem("isResponder", "1");
             }
+            else {
+                var storage = window.localStorage;
+                storage.setItem("isResponder", "0");
+            }
         }
 
     }
@@ -124,10 +128,10 @@
              switchWithPeer();
            "end loop"
         */
-        //turnBluOn(setBeacon(makeThisPublic(getOtherTeeth(stop))));
-		//(function () {
-        //    setInterval(switchWithPeer, 12000);
-        //})();
+        turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
+		(function () {
+            setInterval(switchWithPeer, 12000);
+        })();
     };
     function onPause() {
         // TODO: This application has been suspended. Save application state here.
@@ -182,10 +186,10 @@
         var isResp = storage.getItem("isResponder");
         if (isResp == "1") {
             // get unique emergency requests into a list for display 
-            broadCastHist.push(device_names[0] + '---');
+            broadCastHist.push(device_names[0]);
             storage.setItem("devices", broadCastHist); // Pass a key name and its value to add or update that key.
             var value = storage.getItem("devices"); // Pass a key name to get its value.
-            navigator.notification.alert('collected requests: ' + value);
+            //navigator.notification.alert('collected requests: ' + value);
             //storage.removeItem(key) // Pass a key name to remove that key from storage.
         }
         else {
