@@ -31,6 +31,7 @@
     var thisAddr = '';
 
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
+
     function setupTasks() {
         //window.addEventListener('filePluginIsReady', function () { window.addEventListener('filePluginIsReady', function () { console.log('File plugin is ready'); }, false); ('File plugin is ready'); }, false);
 
@@ -146,8 +147,6 @@
     function onResume() {
         // TODO: This application has been reactivated. Restore application state here.
     };
-
-
     function pickRandNeigh(numNeighs) {
         var selected = 0;
         selected = getRandomInt(0, numNeighs);
@@ -168,6 +167,7 @@
         // With the listener in place, get the list of known devices
         networking.bluetooth.getDevices(function (devices) {
             for (var i = 0; i < devices.length; i++) {
+                navigator.notification.alert(devices[i]);
                 updateDeviceName(devices[i]);
             }
         });
