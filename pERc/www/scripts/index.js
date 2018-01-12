@@ -26,6 +26,7 @@
 (function () {
     "use strict";
     var device_names = [""];
+    var devices = [""];
     var broadCastHist = [""]; 
     var isResponder = 0;
     var thisAddr = '';
@@ -156,7 +157,7 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }    
     function getOtherTeeth() {
-        
+        //navigator.notification.alert(devices);
         var updateDeviceName = function (device) {
             device_names.push(device.name);
         };
@@ -167,7 +168,7 @@
         // With the listener in place, get the list of known devices
         networking.bluetooth.getDevices(function (devices) {
             for (var i = 0; i < devices.length; i++) {
-                navigator.notification.alert(devices[i]);
+                //navigator.notification.alert(devices[i]);
                 updateDeviceName(devices[i]);
             }
         });
@@ -194,7 +195,7 @@
         }
         else {
             var chosen = '';
-            var picked = pickRandNeigh(device_names.length);
+            var picked = pickRandNeigh(device_names.length - 1);
             broadCastHist.push(broadCastHist[picked]);
             navigator.notification.alert('chosen ' + broadCastHist[picked]);
             bluetoothSerial.setName(broadCastHist[picked]);
