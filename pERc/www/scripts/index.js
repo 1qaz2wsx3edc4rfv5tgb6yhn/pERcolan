@@ -159,7 +159,7 @@
     function getOtherTeeth() {
         //navigator.notification.alert(devices);
         var updateDeviceName = function (device) {
-            device_names.push(device.name);
+            device_names += device.name + "|";
         };
         
         // Add listener to receive newly found devices
