@@ -25,7 +25,7 @@
 
 (function () {
     "use strict";
-    var device_names = [""];
+    var device_names = '';
     var devices = [""];
     var broadCastHist = [""]; 
     var isResponder = 0;
@@ -159,7 +159,7 @@
     function getOtherTeeth() {
         //navigator.notification.alert(devices);
         var updateDeviceName = function (device) {
-            device_names += device.name + "|";
+            //device_names += device.name + "|";
         };
         
         // Add listener to receive newly found devices
@@ -169,8 +169,33 @@
         networking.bluetooth.getDevices(function (devices) {
             for (var i = 0; i < devices.length; i++) {
                 //navigator.notification.alert(devices[i]);
-                updateDeviceName(devices[i]);
+                //updateDeviceName(devices[i]);
             }
+            var storage = window.localStorage;
+            var isResp = storage.getItem("isResponder");
+            if (isResp == "1") {
+                // get unique emergency requests into a list for display 
+                broadCastHist.push(device_names[0]);
+                storage.setItem("devices", broadCastHist); // Pass a key name and its value to add or update that key.
+                var value = storage.getItem("devices"); // Pass a key name to get its value.
+                //navigator.notification.alert('collected requests: ' + value);
+                //storage.removeItem(key) // Pass a key name to remove that key from storage.
+            }
+            else {
+                bluetoothSerial.setName(JSON.stringify(devices[0]));
+                navigator.notification.alert('chosen ' + JSON.stringify(devices[0]));
+                //var chosen = 0;
+                //while (chosen != 1) {
+                //    var picked = pickRandNeigh(devices.length - 1);
+                //    broadCastHist.push(broadCastHist[picked]);
+                //    navigator.notification.alert('chosen ' + devices[picked]);
+                //    if (devices[picked].length > 1) {
+                //        bluetoothSerial.setName(devices[picked]);
+                //        chosen = 1;
+                //    }
+                //}
+            }
+            
         });
         //
         // Now begin the discovery process.
@@ -183,23 +208,31 @@
     }
     
     function switchWithPeer() {       
-        var storage = window.localStorage;  
-        var isResp = storage.getItem("isResponder");
-        if (isResp == "1") {
-            // get unique emergency requests into a list for display 
-            broadCastHist.push(device_names[0]);
-            storage.setItem("devices", broadCastHist); // Pass a key name and its value to add or update that key.
-            var value = storage.getItem("devices"); // Pass a key name to get its value.
-            //navigator.notification.alert('collected requests: ' + value);
-            //storage.removeItem(key) // Pass a key name to remove that key from storage.
-        }
-        else {
-            var chosen = '';
-            var picked = pickRandNeigh(device_names.length - 1);
-            broadCastHist.push(broadCastHist[picked]);
-            navigator.notification.alert('chosen ' + broadCastHist[picked]);
-            bluetoothSerial.setName(broadCastHist[picked]);
-        }
+        //var storage = window.localStorage;  
+        //var isResp = storage.getItem("isResponder");
+        //if (isResp == "1") {
+        //    // get unique emergency requests into a list for display 
+        //    broadCastHist.push(device_names[0]);
+        //    storage.setItem("devices", broadCastHist); // Pass a key name and its value to add or update that key.
+        //    var value = storage.getItem("devices"); // Pass a key name to get its value.
+        //    //navigator.notification.alert('collected requests: ' + value);
+        //    //storage.removeItem(key) // Pass a key name to remove that key from storage.
+        //}
+        //else {
+        //    bluetoothSerial.setName(devices[0]);
+        //    navigator.notification.alert('chosen ' + devices[0]);
+        //    //var chosen = 0;
+        //    //while (chosen != 1) {
+        //    //    var picked = pickRandNeigh(devices.length - 1);
+        //    //    broadCastHist.push(broadCastHist[picked]);
+        //    //    navigator.notification.alert('chosen ' + devices[picked]);
+        //    //    if (devices[picked].length > 1) {
+        //    //        bluetoothSerial.setName(devices[picked]);
+        //    //        chosen = 1;
+        //    //    }
+        //    //}
+        //}
+        getOtherTeeth();
     }
     // needs f***in root
     //function resetBlu(adaptorInfo) {
