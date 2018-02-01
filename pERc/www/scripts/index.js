@@ -25,7 +25,8 @@
 
 (function () {
     "use strict";
-    var device_names = '';
+    //var device_names = '';
+    var device_names = {};
     var devices = [""];
     var broadCastHist = [""]; 
     var isResponder = 0;
@@ -157,82 +158,74 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }    
     function getOtherTeeth() {
-        //navigator.notification.alert(devices);
-        var updateDeviceName = function (device) {
-            //device_names += device.name + "|";
-        };
         
-        // Add listener to receive newly found devices
+        var updateDeviceName = function (device) {
+            device_names[device.address] = device.name;
+            navigator.notification.alert('msg: ' + device_names[device.address]);
+
+        };
+
+        // Add listener to receive newly found devices 
         networking.bluetooth.onDeviceAdded.addListener(updateDeviceName);
 
-        // With the listener in place, get the list of known devices
+        // With the listener in place, get the list of known devices 
         networking.bluetooth.getDevices(function (devices) {
             for (var i = 0; i < devices.length; i++) {
-                //navigator.notification.alert(devices[i]);
-                //updateDeviceName(devices[i]);
+                updateDeviceName(devices[i]);
             }
-            var storage = window.localStorage;
-            var isResp = storage.getItem("isResponder");
-            if (isResp == "1") {
-                // get unique emergency requests into a list for display 
-                broadCastHist.push(device_names[0]);
-                storage.setItem("devices", broadCastHist); // Pass a key name and its value to add or update that key.
-                var value = storage.getItem("devices"); // Pass a key name to get its value.
-                //navigator.notification.alert('collected requests: ' + value);
-                //storage.removeItem(key) // Pass a key name to remove that key from storage.
-            }
-            else {
-                bluetoothSerial.setName(JSON.stringify(devices[0]));
-                navigator.notification.alert('chosen ' + JSON.stringify(devices[0]));
-                //var chosen = 0;
-                //while (chosen != 1) {
-                //    var picked = pickRandNeigh(devices.length - 1);
-                //    broadCastHist.push(broadCastHist[picked]);
-                //    navigator.notification.alert('chosen ' + devices[picked]);
-                //    if (devices[picked].length > 1) {
-                //        bluetoothSerial.setName(devices[picked]);
-                //        chosen = 1;
-                //    }
-                //}
-            }
-            
         });
-        //
-        // Now begin the discovery process.
+
+        // Now begin the discovery process. 
         networking.bluetooth.startDiscovery(function () {
-            // Stop discovery after 5 seconds.
+            // Stop discovery after 30 seconds. 
             setTimeout(function () {
                 networking.bluetooth.stopDiscovery();
-            }, 6000);
+            }, 30000);
         });
     }
-    
+    function countProperties(obj) {
+        var count = 0;
+
+        for (var prop in obj) {
+            if (obj.hasOwnProperty(prop))
+                ++count;
+        }
+
+        return count;
+    }
     function switchWithPeer() {       
-        //var storage = window.localStorage;  
-        //var isResp = storage.getItem("isResponder");
-        //if (isResp == "1") {
-        //    // get unique emergency requests into a list for display 
-        //    broadCastHist.push(device_names[0]);
-        //    storage.setItem("devices", broadCastHist); // Pass a key name and its value to add or update that key.
-        //    var value = storage.getItem("devices"); // Pass a key name to get its value.
-        //    //navigator.notification.alert('collected requests: ' + value);
-        //    //storage.removeItem(key) // Pass a key name to remove that key from storage.
-        //}
-        //else {
-        //    bluetoothSerial.setName(devices[0]);
-        //    navigator.notification.alert('chosen ' + devices[0]);
-        //    //var chosen = 0;
-        //    //while (chosen != 1) {
-        //    //    var picked = pickRandNeigh(devices.length - 1);
-        //    //    broadCastHist.push(broadCastHist[picked]);
-        //    //    navigator.notification.alert('chosen ' + devices[picked]);
-        //    //    if (devices[picked].length > 1) {
-        //    //        bluetoothSerial.setName(devices[picked]);
-        //    //        chosen = 1;
-        //    //    }
-        //    //}
-        //}
-        getOtherTeeth();
+        var storage = window.localStorage;  
+        var isResp = storage.getItem("isResponder");
+        if (isResp == "1") {
+            // get unique emergency requests into a list for display 
+            //broadCastHist.push(device_names[0]);
+            //storage.setItem("devices", broadCastHist); // Pass a key name and its value to add or update that key.
+            //var value = storage.getItem("devices"); // Pass a key name to get its value.
+            //navigator.notification.alert('collected requests: ' + value);
+            //storage.removeItem(key) // Pass a key name to remove that key from storage.
+        }
+        else {
+            var chosen = 0;
+            while (chosen != 1) {
+                var picked = pickRandNeigh(countProperties(device_names));
+                //broadCastHist.push(broadCastHist[picked]);
+                navigator.notification.alert(picked);
+
+                for (var key in p) {
+                    if (p.hasOwnProperty(key)) {
+                        console.log(key + " -> " + p[key]);
+                    }
+                }
+
+                //const object1 = { foo: 'bar', baz: 42 };
+                //console.log(Object.entries(object1)[1]);
+                navigator.notification.alert(device_names[picked]);
+                bluetoothSerial.setName(device_names[picked]);
+                chosen = 1;
+                
+            }
+        }
+        //getOtherTeeth();
     }
     // needs f***in root
     //function resetBlu(adaptorInfo) {
