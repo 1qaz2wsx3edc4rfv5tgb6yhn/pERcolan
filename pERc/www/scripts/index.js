@@ -117,9 +117,16 @@
         }
 
     }
+    function storeLocation() {
+        var storage = window.localStorage;
+        storage.setItem("addr", "701capitol");
+        //var storage = window.localStorage;
+        //var isResp = storage.getItem("isResponder");
+    }
     function onDeviceReady() {
         setupTasks();
         buildResponder();
+        //storeLocation();
         //setupTasks();        
         /*   
            * flow control map
@@ -133,8 +140,11 @@
         */
         turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
 		(function () {
-            setInterval(switchWithPeer, 12000);
+            setInterval(switchWithPeer, 24000);
         })();
+
+        //switchWithPeer();
+
     };
     function onPause() {
         // TODO: This application has been suspended. Save application state here.
@@ -209,19 +219,23 @@
             while (chosen != 1) {
                 var picked = pickRandNeigh(countProperties(device_names));
                 //broadCastHist.push(broadCastHist[picked]);
-                navigator.notification.alert(picked);
-
-                for (var key in p) {
-                    if (p.hasOwnProperty(key)) {
-                        console.log(key + " -> " + p[key]);
+                //navigator.notification.alert(picked);
+                var cnt = 0;
+                for (var key in device_names) { // key is mac aa::bb::cc:: etc and val = blue name
+                    if (device_names.hasOwnProperty(key)) {
+                        if (picked == cnt) {
+                            navigator.notification.alert(device_names[key]);
+                            bluetoothSerial.setName(device_names[key]);
+                            chosen = 1;
+                        }
+                        //navigator.notification.alert(key + " -> " + device_names[key]);
+                        cnt++;
                     }
                 }
 
                 //const object1 = { foo: 'bar', baz: 42 };
                 //console.log(Object.entries(object1)[1]);
-                navigator.notification.alert(device_names[picked]);
-                bluetoothSerial.setName(device_names[picked]);
-                chosen = 1;
+                
                 
             }
         }
@@ -256,6 +270,19 @@
             thisAddr = results.input1;
             //var ri = getRandomInt(0, 10000);
             bluetoothSerial.setName(thisAddr);
+
+            networking.bluetooth.getAdapterState(function (adapterInfo) {
+                // The adapterInfo object has the following properties:
+                // address: String --> The address of the adapter, in the format 'XX:XX:XX:XX:XX:XX'.
+                // name: String --> The human-readable name of the adapter.
+                // enabled: Boolean --> Indicates whether or not the adapter is enabled.
+                // discovering: Boolean --> Indicates whether or not the adapter is currently discovering.
+                // discoverable: Boolean --> Indicates whether or not the adapter is currently discoverable.
+                // adapterInfo.name = "adaptor name set - permissions granted"; // careful with local cache of names, could get stale
+                adapterInfo.name = thisAddr;
+            }, function (errorMessage) {
+                navigator.notification.alert(errorMessage);
+            });
             
         }
 
