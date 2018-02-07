@@ -15,22 +15,21 @@
 //  https://drive.google.com/open?id=0B9G6-6K0q4geTDdsd3ZzM296cHM
 //  ...that stops/restarts bluetooth share service where bluetooth names are cached (and seem to get stale consistently hence this workaround)
 
-
 //  4 * 0.1 items todo: 
 //  1) read file based default emergency beacon message from device and set that = this.name
 //  2) impose any needed de-spamm filter to prevent peer saturation and deadlock/instability
 //  3) add sensor data that may be relevant, including auto-load when vibration/Delta(spatial)/etc => earthquake, severe collision, and...?
 //  5) switch only with beacons carrying the 'perc token' = "+" 
 
-
 (function () {
     "use strict";
-    //var device_names = '';
     var device_names = {};
     var devices = [""];
     var broadCastHist = [""]; 
     var isResponder = 0;
     var thisAddr = '';
+    var firstRun = 1;
+    var switchToAddr = '';
 
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
 
@@ -94,13 +93,16 @@
                     error);
             }
         }
-
-        
-
+        var storage = window.localStorage;
+        var isResp = storage.getItem("isResponder");
+        if (isResp == 1 || isResp == 0) {
+            firstRun = 0;
+        }
+        firstRun = 1; // ******* for debgugging needs to be removed
     }
     function buildResponder(isResponder) {
         navigator.notification.prompt(
-            'Are you a First Responder? (if Yes, you will collect unique emergency requests on your device)',  // message
+            'Enter your address into the window. Also, Are you a First Responder? (if Yes, you will collect unique emergency requests on your device)',  // message
             onPrompt,                  // callback to invoke
             'For First Responders',    // title
             ['Yes', 'No']              // buttonLabels
@@ -109,24 +111,20 @@
             if (results.buttonIndex == 1) {
                 var storage = window.localStorage;
                 storage.setItem("isResponder", "1");
+                storage.setItem("addr", results.input1);
             }
             else {
                 var storage = window.localStorage;
                 storage.setItem("isResponder", "0");
+                storage.setItem("addr", results.input1);
             }
         }
-
-    }
-    function storeLocation() {
-        var storage = window.localStorage;
-        storage.setItem("addr", "701capitol");
-        //var storage = window.localStorage;
-        //var isResp = storage.getItem("isResponder");
-    }
+    }   
     function onDeviceReady() {
         setupTasks();
-        buildResponder();
-        //storeLocation();
+        if (firstRun == 1) {
+            buildResponder(); 
+        }
         //setupTasks();        
         /*   
            * flow control map
@@ -140,7 +138,7 @@
         */
         turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
 		(function () {
-            setInterval(switchWithPeer, 24000);
+            setInterval(switchWithPeer, 8000);
         })();
 
         //switchWithPeer();
@@ -168,10 +166,11 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }    
     function getOtherTeeth() {
-        
+        // *** device_names[device.address] == 'undefined' when slot is empty
         var updateDeviceName = function (device) {
             device_names[device.address] = device.name;
-            navigator.notification.alert('msg: ' + device_names[device.address]);
+            switchToAddr = device.address;
+            //navigator.notification.alert('msg: ' + device_names[device.address]);
 
         };
 
@@ -219,17 +218,17 @@
             while (chosen != 1) {
                 var picked = pickRandNeigh(countProperties(device_names));
                 //broadCastHist.push(broadCastHist[picked]);
-                //navigator.notification.alert(picked);
                 var cnt = 0;
                 for (var key in device_names) { // key is mac aa::bb::cc:: etc and val = blue name
-                    if (device_names.hasOwnProperty(key)) {
-                        if (picked == cnt) {
-                            navigator.notification.alert(device_names[key]);
-                            bluetoothSerial.setName(device_names[key]);
-                            chosen = 1;
-                        }
-                        //navigator.notification.alert(key + " -> " + device_names[key]);
-                        cnt++;
+                    if (device_names.hasOwnProperty(key)) {                        
+                            if (picked == cnt) {
+                                //navigator.notification.alert(device_names[key]);
+                                bluetoothSerial.setName(device_names[key]);                                
+                                chosen = 1;
+                            }
+                            //navigator.notification.alert(key + " -> " + device_names[key]);
+                            cnt++;
+                        
                     }
                 }
 
@@ -240,61 +239,19 @@
             }
         }
         //getOtherTeeth();
+        //bluetoothSerial.setName(device_names[switchToAddr]);
+        //navigator.notification.alert(device_names[switchToAddr]);
     }
-    // needs f***in root
-    //function resetBlu(adaptorInfo) {
-    //    navigator.startApp.check("com.android.bluetooth", function (message) { /* success */
-    //        navigator.notification.alert(message); // => OK
-    //    },
-    //    function (error) { /* error */
-    //        navigator.notification.alert(error);
-    //    });
-    //    //Start application without parameters
-    //    networking.bluetooth.requestDisable(function () {
-    //        // The adapter is now enabled 
-    //    }, function () {
-    //        // The user has cancelled the operation 
-    //    });
-    //    navigator.startApp.start("com.android.bluetooth", function (message) {  /* success */
-    //        navigator.notification.alert(message); // => OK
-    //    },
-    //    function (error) { /* error */
-    //        navigator.notification.alert(error);
-    //    });
-    //}
-    
     function setBeacon() {
-        function onPrompt(results) {
-            //resetBlu(); // done by macrodroid exported file
-            //turnBluOn();
-            thisAddr = results.input1;
-            //var ri = getRandomInt(0, 10000);
-            bluetoothSerial.setName(thisAddr);
-
-            networking.bluetooth.getAdapterState(function (adapterInfo) {
-                // The adapterInfo object has the following properties:
-                // address: String --> The address of the adapter, in the format 'XX:XX:XX:XX:XX:XX'.
-                // name: String --> The human-readable name of the adapter.
-                // enabled: Boolean --> Indicates whether or not the adapter is enabled.
-                // discovering: Boolean --> Indicates whether or not the adapter is currently discovering.
-                // discoverable: Boolean --> Indicates whether or not the adapter is currently discoverable.
-                // adapterInfo.name = "adaptor name set - permissions granted"; // careful with local cache of names, could get stale
-                adapterInfo.name = thisAddr;
-            }, function (errorMessage) {
-                navigator.notification.alert(errorMessage);
-            });
-            
-        }
-
-        navigator.notification.prompt(
-            'beacon:',  // message
-            onPrompt,                  // callback to invoke
-            'enter pERc msg',            // title
-            ['Ok'],             // buttonLabels
-            getRandomInt(1,999999999)                // defaultText
-        );
+        var storage = window.localStorage;
+        var thisAddr = storage.getItem("addr");
+        networking.bluetooth.getAdapterState(function (adapterInfo) {
+            //adapterInfo.name = thisAddr;
+        }, function (errorMessage) {
+            navigator.notification.alert(errorMessage);
+        });
     }
-    function turnBluOn(obj1) {
+    function turnBluOn() {
         networking.bluetooth.getAdapterState(function (adapterInfo) {
             // The adapterInfo object has the following properties:
             // address: String --> The address of the adapter, in the format 'XX:XX:XX:XX:XX:XX'.
@@ -348,7 +305,9 @@
                 // name: String --> The human-readable name of the device.
                 // paired: Boolean --> Indicates whether or not the device is paired with the system.
                 // uuids: Array of String --> UUIDs of protocols, profiles and services advertised by the device.
-                navigator.notification.alert(devices[i].address + "|" + devices[i].name);
+                //if (j == i) {
+                //    navigator.notification.alert(devices[i].address + "|" + devices[i].name);
+                //}
             }
         });
     }
@@ -379,28 +338,3 @@
         return n;
     }
 })();
-
-// need f***** root 
-// Macrodroid action recorder for android handles that with this importable action file:
-//  https://drive.google.com/open?id=0B9G6-6K0q4geTDdsd3ZzM296cHM
-//function resetBlu(adaptorInfo) {
-    //    //navigator.startApp.check("com.android.bluetooth", function (message) { /* success */
-    //    //    navigator.notification.alert(message); // => OK
-    //    //},
-    //    //function (error) { /* error */
-    //    //    navigator.notification.alert(error);
-    //    //});
-    //    //Start application without parameters
-    //    //networking.bluetooth.requestDisable(function () {
-    //    //    // The adapter is now enabled 
-    //    //}, function () {
-    //    //    // The user has cancelled the operation 
-    //    //});
-    //    //navigator.startApp.start("com.android.bluetooth", function (message) {  /* success */
-    //    //    navigator.notification.alert(message); // => OK
-    //    //},
-    //    //function (error) { /* error */
-    //    //    navigator.notification.alert(error);
-    //    //});
-
-//}
