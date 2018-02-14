@@ -25,9 +25,9 @@
     "use strict";
     var device_names = {};
     var devices = [""];
-    var broadCastHist = [""]; 
+    var broadCastHist = {}; 
     var isResponder = 0;
-    var thisAddr = '';
+    var thisAddr = '1234YourWay';
     var firstRun = 1;
     var switchToAddr = '';
 
@@ -38,8 +38,12 @@
 
         document.addEventListener('pause', onPause.bind(this), false);
         document.addEventListener('resume', onResume.bind(this), false);
-        respondees.addEventListener('click', function () { navigator.notification.alert('respondee messages: ' + broadCastHist); }, false);
+        //addrRespMenu.addEventListener('click', function () { localPhysicalAddr(); }, false);
+        //respondees.addEventListener('click', function () { navigator.notification.alert('broadcast history : ' + JSON.stringify(broadCastHist)); }, false);
 
+        $("#respondees").on("touchend", function () { navigator.notification.alert('broadcast history : ' + JSON.stringify(broadCastHist)); });
+        $("#addrRespMenu").on("touchend", function () { localPhysicalAddr(); });
+        $("#addrShow").on("touchend", function () { addrResponderMenu(); });
 
         // TODO: Cordova has been loaded. Perform any initialization that requires Cordova here.
         var parentElement = document.getElementById('deviceready');
@@ -93,38 +97,59 @@
                     error);
             }
         }
-        var storage = window.localStorage;
-        var isResp = storage.getItem("isResponder");
-        if (isResp == 1 || isResp == 0) {
-            firstRun = 0;
-        }
-        firstRun = 1; // ******* for debgugging needs to be removed
+        //var storage = window.localStorage;
+        //var isResp = storage.getItem("isResponder");
+        //if (isResp == 1) {
+        //    firstRun = 0;
+        //}
+        //var storage = window.localStorage;
+        //var storage2 = window.localStorage;
+        //isResponder = storage.getItem("isResponder");
+        //thisAddr = storage2.getItem("addr");
     }
-    function buildResponder(isResponder) {
+    function localPhysicalAddr() {
         navigator.notification.prompt(
             'Enter your address into the window. Also, Are you a First Responder? (if Yes, you will collect unique emergency requests on your device)',  // message
             onPrompt,                  // callback to invoke
             'For First Responders',    // title
             ['Yes', 'No']              // buttonLabels
         );
-        function onPrompt(results) {
+        function onPrompt(results) { // when not firstreposnderr addr is blank on refresh
             if (results.buttonIndex == 1) {
                 var storage = window.localStorage;
+                var storage2 = window.localStorage;
                 storage.setItem("isResponder", "1");
-                storage.setItem("addr", results.input1);
+                storage2.setItem("addr", results.input1);
             }
             else {
                 var storage = window.localStorage;
+                var storage2 = window.localStorage;
                 storage.setItem("isResponder", "0");
-                storage.setItem("addr", results.input1);
+                storage2.setItem("addr", results.input1);
             }
         }
-    }   
+    } 
+    function addrResponderMenu() {
+        var storage = window.localStorage;
+        var storage2 = window.localStorage;
+        thisAddr = storage.getItem("addr");
+        isResponder = storage2.getItem("isResponder");
+        navigator.notification.alert("addr: " + thisAddr + "    " + "isResponder? " + isResponder);
+    }
     function onDeviceReady() {
         setupTasks();
-        if (firstRun == 1) {
-            buildResponder(); 
-        }
+        localPhysicalAddr();
+       
+        //if (thisAddr.includes("+")) {
+        //    isResponder = 0;
+        //}
+        //else {
+        //    //localPhysicalAddr();
+        //    isResponder = 1;
+        //}
+        //if (isResponder == 1) {
+        //    navigator.notification.alert("you are a responder w/addr: " + thisAddr);
+        //}
         //setupTasks();        
         /*   
            * flow control map
@@ -136,10 +161,10 @@
              switchWithPeer();
            "end loop"
         */
-        turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
-		(function () {
-            setInterval(switchWithPeer, 8000);
-        })();
+  //      turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
+		//(function () {
+  //          setInterval(switchWithPeer, 20000);
+  //      })();
 
         //switchWithPeer();
 
@@ -168,8 +193,10 @@
     function getOtherTeeth() {
         // *** device_names[device.address] == 'undefined' when slot is empty
         var updateDeviceName = function (device) {
-            device_names[device.address] = device.name;
-            switchToAddr = device.address;
+            if (device.name.includes("+")) {
+                device_names[device.address] = device.name;
+                //switchToAddr = device.address;
+            }
             //navigator.notification.alert('msg: ' + device_names[device.address]);
 
         };
@@ -189,7 +216,7 @@
             // Stop discovery after 30 seconds. 
             setTimeout(function () {
                 networking.bluetooth.stopDiscovery();
-            }, 30000);
+            }, 300000);
         });
     }
     function countProperties(obj) {
@@ -225,6 +252,8 @@
                                 //navigator.notification.alert(device_names[key]);
                                 bluetoothSerial.setName(device_names[key]);                                
                                 chosen = 1;
+                                broadCastHist[key] += device_names[key];
+                                document.getElementById("deviceProperties").innerHTML += device_names[key] + "<br />"; 
                             }
                             //navigator.notification.alert(key + " -> " + device_names[key]);
                             cnt++;
@@ -246,7 +275,7 @@
         var storage = window.localStorage;
         var thisAddr = storage.getItem("addr");
         networking.bluetooth.getAdapterState(function (adapterInfo) {
-            //adapterInfo.name = thisAddr;
+            bluetoothSerial.setName(thisAddr);
         }, function (errorMessage) {
             navigator.notification.alert(errorMessage);
         });
