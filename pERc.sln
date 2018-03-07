@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.14
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "pERc", "pERc\pERc.jsproj", "{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}"
 EndProject
@@ -19,9 +19,9 @@ Global
 		Release|Windows-x86 = Release|Windows-x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|Android.ActiveCfg = Release|Android
-		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|Android.Build.0 = Release|Android
-		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|Android.Deploy.0 = Release|Android
+		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|Android.ActiveCfg = Debug|Android
+		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|Android.Build.0 = Debug|Android
+		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|Android.Deploy.0 = Debug|Android
 		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|iOS.ActiveCfg = Debug|iOS
 		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|iOS.Build.0 = Debug|iOS
 		{C96D8CA1-6CF2-42E9-99BE-22BD8CC43177}.Debug|iOS.Deploy.0 = Debug|iOS
@@ -52,5 +52,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1A0887FB-08C8-451E-8477-A6B1E5D94C5C}
 	EndGlobalSection
 EndGlobal

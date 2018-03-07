@@ -1,0 +1,25 @@
+{
+  "name": "cordova-plugin-android-gpsdetect",
+  "version": "0.0.3",
+  "description": "Cordova Gps Detector Android Plugin from orinial com.butterflyeffect.plugins",
+  "cordova": {
+    "id": "cordova-plugin-android-gpsdetect",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thosoft/gpsdetector"
+  },
+  "keywords": [
+    "cordova",
+    "gps",
+    "geolocation",
+    "ecosystem:cordova",
+    "cordova-android",
+    "detect"
+  ],
+  "author": "Tho Ho",
+  "license": "Apache 2.0"
+}

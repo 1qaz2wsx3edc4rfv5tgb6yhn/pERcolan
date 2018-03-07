@@ -56,5 +56,13 @@
         },
         "is_top_level": true,
         "variables": {}
+    },
+    "cordova-plugin-android-gpsdetect": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-android-gpsdetect"
+        },
+        "is_top_level": true,
+        "variables": {}
     }
 }

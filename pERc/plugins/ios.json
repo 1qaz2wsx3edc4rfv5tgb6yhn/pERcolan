@@ -24,6 +24,9 @@
         },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "io.cordova.myapp8a170b"
+        },
+        "cordova-plugin-android-gpsdetect": {
+            "PACKAGE_NAME": "io.cordova.myapp8a170b"
         }
     },
     "dependent_plugins": {

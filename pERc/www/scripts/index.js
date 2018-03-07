@@ -21,9 +21,10 @@
 //  3) add sensor data that may be relevant, including auto-load when vibration/Delta(spatial)/etc => earthquake, severe collision, and...?
 //  5) switch only with beacons carrying the 'perc token' = "+" 
 
+
 (function () {
     "use strict";
-    var device_names = {};
+    var device_names = {}; // key value pair
     var devices = [""];
     var broadCastHist = {}; 
     var isResponder = 0;
@@ -38,12 +39,19 @@
 
         document.addEventListener('pause', onPause.bind(this), false);
         document.addEventListener('resume', onResume.bind(this), false);
-        //addrRespMenu.addEventListener('click', function () { localPhysicalAddr(); }, false);
-        //respondees.addEventListener('click', function () { navigator.notification.alert('broadcast history : ' + JSON.stringify(broadCastHist)); }, false);
-
-        $("#respondees").on("touchend", function () { navigator.notification.alert('broadcast history : ' + JSON.stringify(broadCastHist)); });
-        $("#addrRespMenu").on("touchend", function () { localPhysicalAddr(); });
-        $("#addrShow").on("touchend", function () { addrResponderMenu(); });
+        //addrRespMenu.addEventListener('touchstart', function () { localPhysicalAddr(); }, false);
+        //addrShow.addEventListener('touchstart', function () { addrResponderMenu(); }, false);
+        //respondees.addEventListener('touchstart', function () { navigator.notification.alert('broadcast history : ' + JSON.stringify(broadCastHist)); }, false);
+        //respondees.addEventListener('touchstart', process_touchstart, false);
+        //// touchstart handler
+        //function process_touchstart(ev) {
+        //    // Use the event's data to call out to the appropriate gesture handlers
+        //    navigator.notification.alert('broadcast history : ' + JSON.stringify(broadCastHist));
+           
+        //}
+        //$("#respondees").on("touchend", function () { navigator.notification.alert('broadcast history : ' + JSON.stringify(broadCastHist)); });
+        //$("#addrRespMenu").on("touchend", function () { localPhysicalAddr(); });
+        //$("#addrShow").on("touchend", function () { addrResponderMenu(); });
 
         // TODO: Cordova has been loaded. Perform any initialization that requires Cordova here.
         var parentElement = document.getElementById('deviceready');
@@ -51,7 +59,7 @@
         var receivedElement = parentElement.querySelector('.received');
         listeningElement.setAttribute('style', 'display:none;');
         receivedElement.setAttribute('style', 'display:block;');
-
+        //navigator.notification.alert("before perms cordova.plugins.permissions");
         var permissions = cordova.plugins.permissions;
         // perms req android 6
         var list = [
@@ -76,13 +84,13 @@
             permissions.KILL_BACKGROUND_PROCESSES,
             permissions.NFC,
             permissions.READ_SYNC_SETTINGS,
-            permissions.READ_SYNC_STATS
-            //permissions.LOCATION_HARDWARE, /* unused */
+            permissions.READ_SYNC_STAT
+            //permissions.LOCATION_HARDWARE
             //permissions.VIBRATE
         ];
-
+        
         permissions.hasPermission(list, null, null); // deprecated, but it takes a list...does updated API take list obj?
-
+        //navigator.notification.alert("setup done");
         function error() {
             console.warn('error');
         }
@@ -136,10 +144,37 @@
         isResponder = storage2.getItem("isResponder");
         navigator.notification.alert("addr: " + thisAddr + "    " + "isResponder? " + isResponder);
     }
+    // onSuccess Callback
+    // This method accepts a Position object, which contains the
+    // current GPS coordinates
+    //
+    var onSuccess = function (position) {
+            var element = document.getElementById('geolocation');
+            element.innerHTML = 'Latitude: ' + position.coords.latitude + '\n' +
+            'Longitude: ' + position.coords.longitude + '\n' +
+            'Altitude: ' + position.coords.altitude + '\n' +
+            'Accuracy: ' + position.coords.accuracy + '\n' +
+            'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
+            'Heading: ' + position.coords.heading + '\n' +
+            'Speed: ' + position.coords.speed + '\n' +
+            'Timestamp: ' + position.timestamp + '\n';
+    };
+    // onError Callback receives a PositionError object
+    //
+    function onError(error) {
+        navigator.notification.alert('code: ' + error.code + '\n' +
+            'message: ' + error.message + '\n');
+    }   
     function onDeviceReady() {
+        
         setupTasks();
         localPhysicalAddr();
-       
+        // *****
+        // *****
+        // *** gps section
+        //navigator.geolocation.getCurrentPosition(onSuccess, onError);
+        // ***
+        // *** end gps
         //if (thisAddr.includes("+")) {
         //    isResponder = 0;
         //}
@@ -161,10 +196,12 @@
              switchWithPeer();
            "end loop"
         */
-  //      turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
-		//(function () {
-  //          setInterval(switchWithPeer, 20000);
-  //      })();
+        //navigator.notification.alert("about to start blu");
+       
+        turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
+		(function () {
+            setInterval(switchWithPeer, 1000);
+        })();
 
         //switchWithPeer();
 
@@ -182,10 +219,13 @@
     function onResume() {
         // TODO: This application has been reactivated. Restore application state here.
     };
-    function pickRandNeigh(numNeighs) {
+    function decideBeacon(numNeighs) { // eg set this blutooth name based upon pnp/neighbor router
+        // *** commented out random selection ***
         var selected = 0;
         selected = getRandomInt(0, numNeighs);
         return selected;
+        // *** end random selection
+
     }
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -193,10 +233,12 @@
     function getOtherTeeth() {
         // *** device_names[device.address] == 'undefined' when slot is empty
         var updateDeviceName = function (device) {
-            if (device.name.includes("+")) {
-                device_names[device.address] = device.name;
+            //if (device.name.includes("+")) {
+            //var storage = window.localStorage;
+            //broadCastHist[device.name] += device.name; 
+            device_names[device.address] = device.name;
                 //switchToAddr = device.address;
-            }
+            //}
             //navigator.notification.alert('msg: ' + device_names[device.address]);
 
         };
@@ -218,6 +260,7 @@
                 networking.bluetooth.stopDiscovery();
             }, 300000);
         });
+        
     }
     function countProperties(obj) {
         var count = 0;
@@ -243,7 +286,7 @@
         else {
             var chosen = 0;
             while (chosen != 1) {
-                var picked = pickRandNeigh(countProperties(device_names));
+                var picked = decideBeacon(countProperties(device_names)); // replace with neigh routing function
                 //broadCastHist.push(broadCastHist[picked]);
                 var cnt = 0;
                 for (var key in device_names) { // key is mac aa::bb::cc:: etc and val = blue name
@@ -253,24 +296,26 @@
                                 bluetoothSerial.setName(device_names[key]);                                
                                 chosen = 1;
                                 broadCastHist[key] += device_names[key];
-                                document.getElementById("deviceProperties").innerHTML += device_names[key] + "<br />"; 
+                                document.getElementById("deviceProperties").innerHTML = "current neighbor msg: " + device_names[key]; 
+                                document.getElementById("history").innerHTML += device_names[key] + "--->"; 
                             }
                             //navigator.notification.alert(key + " -> " + device_names[key]);
                             cnt++;
                         
                     }
                 }
-
+                
                 //const object1 = { foo: 'bar', baz: 42 };
                 //console.log(Object.entries(object1)[1]);
                 
                 
             }
         }
-        //getOtherTeeth();
-        //bluetoothSerial.setName(device_names[switchToAddr]);
-        //navigator.notification.alert(device_names[switchToAddr]);
-    }
+        // works!! navigator.notification.alert(broadCastHist)
+        var storage = window.localStorage;
+        storage.setItem("history", broadCastHist);
+        //navigator.geolocation.getCurrentPosition(onSuccess, onError);
+    }    
     function setBeacon() {
         var storage = window.localStorage;
         var thisAddr = storage.getItem("addr");
@@ -334,9 +379,9 @@
                 // name: String --> The human-readable name of the device.
                 // paired: Boolean --> Indicates whether or not the device is paired with the system.
                 // uuids: Array of String --> UUIDs of protocols, profiles and services advertised by the device.
-                //if (j == i) {
-                //    navigator.notification.alert(devices[i].address + "|" + devices[i].name);
-                //}
+                if (j == i) {
+                    navigator.notification.alert(devices[i].address + "|" + devices[i].name);
+                }
             }
         });
     }
