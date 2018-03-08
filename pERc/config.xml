@@ -112,4 +112,5 @@
   <engine name="windows" spec="4.4.2" />
   <preference name="Fullscreen" value="True" />
   <plugin name="cordova-plugin-android-gpsdetect" spec="~0.0.3" />
+  <plugin name="cordova-plugin-shake" spec="~0.6.0" />
 </widget>

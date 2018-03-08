@@ -15,11 +15,8 @@
 //  https://drive.google.com/open?id=0B9G6-6K0q4geTDdsd3ZzM296cHM
 //  ...that stops/restarts bluetooth share service where bluetooth names are cached (and seem to get stale consistently hence this workaround)
 
-//  4 * 0.1 items todo: 
-//  1) read file based default emergency beacon message from device and set that = this.name
-//  2) impose any needed de-spamm filter to prevent peer saturation and deadlock/instability
-//  3) add sensor data that may be relevant, including auto-load when vibration/Delta(spatial)/etc => earthquake, severe collision, and...?
-//  5) switch only with beacons carrying the 'perc token' = "+" 
+// *** shake detect is ios ready *** //
+
 
 
 (function () {
@@ -35,23 +32,9 @@
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
 
     function setupTasks() {
-        //window.addEventListener('filePluginIsReady', function () { window.addEventListener('filePluginIsReady', function () { console.log('File plugin is ready'); }, false); ('File plugin is ready'); }, false);
-
         document.addEventListener('pause', onPause.bind(this), false);
         document.addEventListener('resume', onResume.bind(this), false);
-        //addrRespMenu.addEventListener('touchstart', function () { localPhysicalAddr(); }, false);
-        //addrShow.addEventListener('touchstart', function () { addrResponderMenu(); }, false);
-        //respondees.addEventListener('touchstart', function () { navigator.notification.alert('broadcast history : ' + JSON.stringify(broadCastHist)); }, false);
-        //respondees.addEventListener('touchstart', process_touchstart, false);
-        //// touchstart handler
-        //function process_touchstart(ev) {
-        //    // Use the event's data to call out to the appropriate gesture handlers
-        //    navigator.notification.alert('broadcast history : ' + JSON.stringify(broadCastHist));
-           
-        //}
-        //$("#respondees").on("touchend", function () { navigator.notification.alert('broadcast history : ' + JSON.stringify(broadCastHist)); });
-        //$("#addrRespMenu").on("touchend", function () { localPhysicalAddr(); });
-        //$("#addrShow").on("touchend", function () { addrResponderMenu(); });
+
 
         // TODO: Cordova has been loaded. Perform any initialization that requires Cordova here.
         var parentElement = document.getElementById('deviceready');
@@ -85,6 +68,7 @@
             permissions.NFC,
             permissions.READ_SYNC_SETTINGS,
             permissions.READ_SYNC_STAT
+            
             //permissions.LOCATION_HARDWARE
             //permissions.VIBRATE
         ];
@@ -105,15 +89,6 @@
                     error);
             }
         }
-        //var storage = window.localStorage;
-        //var isResp = storage.getItem("isResponder");
-        //if (isResp == 1) {
-        //    firstRun = 0;
-        //}
-        //var storage = window.localStorage;
-        //var storage2 = window.localStorage;
-        //isResponder = storage.getItem("isResponder");
-        //thisAddr = storage2.getItem("addr");
     }
     function localPhysicalAddr() {
         navigator.notification.prompt(
@@ -144,60 +119,39 @@
         isResponder = storage2.getItem("isResponder");
         navigator.notification.alert("addr: " + thisAddr + "    " + "isResponder? " + isResponder);
     }
-    // onSuccess Callback
-    // This method accepts a Position object, which contains the
-    // current GPS coordinates
-    //
-    var onSuccess = function (position) {
-            var element = document.getElementById('geolocation');
-            element.innerHTML = 'Latitude: ' + position.coords.latitude + '\n' +
-            'Longitude: ' + position.coords.longitude + '\n' +
-            'Altitude: ' + position.coords.altitude + '\n' +
-            'Accuracy: ' + position.coords.accuracy + '\n' +
-            'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
-            'Heading: ' + position.coords.heading + '\n' +
-            'Speed: ' + position.coords.speed + '\n' +
-            'Timestamp: ' + position.timestamp + '\n';
-    };
-    // onError Callback receives a PositionError object
-    //
-    function onError(error) {
-        navigator.notification.alert('code: ' + error.code + '\n' +
-            'message: ' + error.message + '\n');
-    }   
+    function shakeDetectThread() {
+        var launchPerc = 0;
+        var onShake = function () {
+            // Fired when a shake is detected
+            if (launchPerc == 0) {
+                navigator.notification.alert("yup shakey, percy time, sweet muffins");
+            }
+            else {
+                shake.stopWatch();
+            }
+            launchPerc = 1;
+        };
+
+        var onError = function () {
+            navigator.notification.alert("accelerometer err");
+        };
+
+        // Start watching for shake gestures and call "onShake"
+        // with a shake sensitivity of 40 (optional, default 30)
+        shake.startWatch(onShake, 80 , onError);
+
+        // Stop watching for shake gestures
+        //shake.stopWatch();
+    }
     function onDeviceReady() {
-        
+
+
+        shakeDetectThread();
+
         setupTasks();
         localPhysicalAddr();
-        // *****
-        // *****
-        // *** gps section
-        //navigator.geolocation.getCurrentPosition(onSuccess, onError);
-        // ***
-        // *** end gps
-        //if (thisAddr.includes("+")) {
-        //    isResponder = 0;
-        //}
-        //else {
-        //    //localPhysicalAddr();
-        //    isResponder = 1;
-        //}
-        //if (isResponder == 1) {
-        //    navigator.notification.alert("you are a responder w/addr: " + thisAddr);
-        //}
-        //setupTasks();        
-        /*   
-           * flow control map
-           turnBluOn();
-           setBeacon(); 
-           makeThisPublic();
-           "loop"
-             getOtherTeeth();
-             switchWithPeer();
-           "end loop"
-        */
-        //navigator.notification.alert("about to start blu");
-       
+
+
         turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
 		(function () {
             setInterval(switchWithPeer, 1000);
