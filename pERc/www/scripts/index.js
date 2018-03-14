@@ -17,7 +17,7 @@
 
 // *** shake detect is ios ready *** //
 
-
+// ******* cannot have vibrate muted!!! ******
 
 (function () {
     "use strict";
@@ -120,16 +120,21 @@
         navigator.notification.alert("addr: " + thisAddr + "    " + "isResponder? " + isResponder);
     }
     function shakeDetectThread() {
-        var launchPerc = 0;
+        var launchPerc = 1;
         var onShake = function () {
-            // Fired when a shake is detected
-            if (launchPerc == 0) {
-                navigator.notification.alert("yup shakey, percy time, sweet muffins");
-            }
-            else {
-                shake.stopWatch();
-            }
-            launchPerc = 1;
+                turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
+                (function () {
+                    setInterval(switchWithPeer, 1000);
+                    launchPerc = 0;
+                })();
+                // Fired after a shake is detected and blutooth event loop has launched abpve
+                if (launchPerc == 0) {
+                    // read address, set beacon
+                    shake.stopWatch();
+                    var storage = window.localStorage;
+                    thisAddr = storage.getItem("addr");
+                    navigator.notification.alert(thisAddr + ' is broadcasting');
+                }            
         };
 
         var onError = function () {
@@ -138,24 +143,24 @@
 
         // Start watching for shake gestures and call "onShake"
         // with a shake sensitivity of 40 (optional, default 30)
-        shake.startWatch(onShake, 80 , onError);
+        shake.startWatch(onShake, 25 , onError);
 
         // Stop watching for shake gestures
         //shake.stopWatch();
     }
     function onDeviceReady() {
 
-
         shakeDetectThread();
+        
 
         setupTasks();
         localPhysicalAddr();
 
 
-        turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
-		(function () {
-            setInterval(switchWithPeer, 1000);
-        })();
+  //      turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
+		//(function () {
+  //          setInterval(switchWithPeer, 1000);
+  //      })();
 
         //switchWithPeer();
 
@@ -241,7 +246,6 @@
             var chosen = 0;
             while (chosen != 1) {
                 var picked = decideBeacon(countProperties(device_names)); // replace with neigh routing function
-                //broadCastHist.push(broadCastHist[picked]);
                 var cnt = 0;
                 for (var key in device_names) { // key is mac aa::bb::cc:: etc and val = blue name
                     if (device_names.hasOwnProperty(key)) {                        
@@ -251,18 +255,20 @@
                                 chosen = 1;
                                 broadCastHist[key] += device_names[key];
                                 document.getElementById("deviceProperties").innerHTML = "current neighbor msg: " + device_names[key]; 
-                                document.getElementById("history").innerHTML += device_names[key] + "--->"; 
+                                var result = {};
+                                for (let value1 of i in Object.values(broadCastHist)) {
+                                    for (let value2 of j in Object.values(broadCastHist)) {
+                                        if (value1 != value2) {
+                                            result += JSON.stringify(value1) + ":::";
+                                        }
+                                    }
+                                }
+                                document.getElementById("history").innerHTML = result + /*device_names[key]*/ "--->"; 
                             }
                             //navigator.notification.alert(key + " -> " + device_names[key]);
                             cnt++;
-                        
                     }
                 }
-                
-                //const object1 = { foo: 'bar', baz: 42 };
-                //console.log(Object.entries(object1)[1]);
-                
-                
             }
         }
         // works!! navigator.notification.alert(broadCastHist)
