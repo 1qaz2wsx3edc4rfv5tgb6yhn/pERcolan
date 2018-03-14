@@ -255,15 +255,10 @@
                                 chosen = 1;
                                 broadCastHist[key] += device_names[key];
                                 document.getElementById("deviceProperties").innerHTML = "current neighbor msg: " + device_names[key]; 
-                                var result = {};
-                                for (let value1 of i in Object.values(broadCastHist)) {
-                                    for (let value2 of j in Object.values(broadCastHist)) {
-                                        if (value1 != value2) {
-                                            result += JSON.stringify(value1) + ":::";
-                                        }
-                                    }
-                                }
-                                document.getElementById("history").innerHTML = result + /*device_names[key]*/ "--->"; 
+                               
+                                var str = document.getElementById("history").innerHTML;
+                               
+                                document.getElementById("history").innerHTML += "{" + device_names[key] + "}";
                             }
                             //navigator.notification.alert(key + " -> " + device_names[key]);
                             cnt++;
