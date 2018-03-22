@@ -5,35 +5,28 @@
         Customize the content security policy in the meta tag below as needed. Add 'unsafe-inline' to default-src to enable inline JavaScript.
         For details, see http://go.microsoft.com/fwlink/?LinkID=617521
     -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
-        
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">        
         <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
         <link rel="stylesheet" type="text/css" href="css/index.css">
-        <title>pERc</title>
-        
-       
+        <title>pERc</title> 
     </head>
-    <body>
-        <!--<div class="app">-->
-        
-            <div id="history" style="font-size:10px; color:red; word-wrap: break-word;"></div>
-            <div id="geolocation" style="font-size:10px; color:white;"></div>
-            <h1>pERc</h1>
-            <div id="deviceready" class="blink">
-                <p class="event listening">Loading...</p>
-                <p class="event received">Shake Detection is -Active-</p>
-            </div>
-            <div id="deviceProperties" style="font-size:36px; color:red;"></div>
-        <!--</div>-->
+    <body>        
+        <div id="deviceready" class="blink">
+          <p class="event listening">Loading...</p>
+          <p class="event received">Shake Detection is Active</p>
+          <!--<button id="check">check GPS</button>-->
+        </div>
+        <div id="history" class="grid-item" style="font-size:10px; color:red; word-wrap: break-word;"></div>
+        <div id="geolocation" class =" grid-item" style="font-size:10px; color:white;"></div>
+        <h1>pERc</h1>           
+        <div id="deviceProperties" style="font-size:36px; color:red;"></div>
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="scripts/platformOverrides.js"></script>
         <script type="text/javascript" src="scripts/index.js"></script>
         <script type="text/javascript" src="cordova.js"></script>
-        <!--<script type="text/javascript" src="scripts/jquery-1.12.3.js"></script>-->
-        <!--<script type="text/javascript" src="scripts/prom7-0-4-min.js"></script>-->
-        
+        <script type="text/javascript" src="scripts/prom7-0-4-min.js"></script>        
     </body>
 </html>

@@ -61,15 +61,21 @@ h1 {
     padding:2px 0px;
 }
 
-.event.listening {
-    background-color:#333333;
-    display:block;
-}
+    .event.listening {
+        background-color: #333333;
+        display: block;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 90px;
+    }
 
-.event.received {
-    background-color:#4B946A;
-    display:none;
-}
+    .event.received {
+        background-color: #4B946A;
+        display: none;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 90px;
+    }
 
 @keyframes fade {
     from { opacity: 1.0; }

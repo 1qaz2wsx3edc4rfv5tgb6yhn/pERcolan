@@ -9,15 +9,8 @@
 //        has permeated 100m-contiguous PERC clients which may or may not be able to assist (upon receiving your address/txtmsg) or may be a fire, police, etc
 //        associated PERC installed cell/bluetooth (android) device.
 //
-// this app requires MacroDroid (free) + imported actions file:
-// reason PERC cannot programmatically perform bluetooth share service cache clearance (root required) ,
-// but Macrodroid action recorder for android handles that with this importable action file:
-//  https://drive.google.com/open?id=0B9G6-6K0q4geTDdsd3ZzM296cHM
-//  ...that stops/restarts bluetooth share service where bluetooth names are cached (and seem to get stale consistently hence this workaround)
 
 // *** shake detect is ios ready *** //
-
-// ******* cannot have vibrate muted!!! ******
 
 (function () {
     "use strict";
@@ -28,14 +21,17 @@
     var thisAddr = '1234YourWay';
     var firstRun = 1;
     var switchToAddr = '';
+    var gpsCord = ''; // eg 40.446° N 79.982° W
 
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
+    document.addEventListener('pause', onPause.bind(this), false);
+    document.addEventListener('resume', onResume.bind(this), false);
+    // didnt fly: document.addEventListener("touchstart", function () { touchStart; }, false);
 
+    function touchStart() {
+        navigator.notification.alert("touched");
+    }
     function setupTasks() {
-        document.addEventListener('pause', onPause.bind(this), false);
-        document.addEventListener('resume', onResume.bind(this), false);
-
-
         // TODO: Cordova has been loaded. Perform any initialization that requires Cordova here.
         var parentElement = document.getElementById('deviceready');
         var listeningElement = parentElement.querySelector('.listening');
@@ -122,35 +118,60 @@
     function shakeDetectThread() {
         var launchPerc = 1;
         var onShake = function () {
-                turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
+            turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
                 (function () {
-                    setInterval(switchWithPeer, 1000);
                     launchPerc = 0;
+                    setInterval(switchWithPeer, 1000);
                 })();
+                // promises snippet replaces nested callbacks and to allow error bubbling up
+                //getOtherTeeth()
+                //    .then(makeThisPublic)
+                //    .then(setBeacon)
+                //    .then(loopBeaconing)
+                //    .catch(function (error) {
+                //        navigator.notification.alert(error);
+                //    })
+
+                //function loopBeaconing(response) {
+                //    setInterval(switchWithPeer, 1000);
+                //    launchPerc = 0;
+                //    if (launchPerc != 0) {
+                //        return Promise.reject('perc is running flag not set!');
+                //    }
+                //    return Promise.resolve(response); // unused
+                //}
+                //function turnBluOn() {
+                //     fetch and log user's profile info with the userName passed in
+                //     from the authStatus function
+                //    getOtherTeeth()
+                //        .then(function (response) {
+                //            navigator.notification.alert(response);
+                //        })
+                //}
                 // Fired after a shake is detected and blutooth event loop has launched abpve
                 if (launchPerc == 0) {
-                    // read address, set beacon
                     shake.stopWatch();
                     var storage = window.localStorage;
                     thisAddr = storage.getItem("addr");
                     navigator.notification.alert(thisAddr + ' is broadcasting');
                 }            
         };
-
         var onError = function () {
             navigator.notification.alert("accelerometer err");
         };
-
         // Start watching for shake gestures and call "onShake"
         // with a shake sensitivity of 40 (optional, default 30)
-        shake.startWatch(onShake, 25 , onError);
-
+        shake.startWatch(onShake, 5 , onError);
         // Stop watching for shake gestures
         //shake.stopWatch();
     }
     function onDeviceReady() {
+        //var check = document.getElementById("check");
+        //check.addEventListener('click', function () { GPSinit(); }, false);
 
-        shakeDetectThread();
+        GPSinit();
+
+        shakeDetectThread(); // main event loop
         
 
         setupTasks();
@@ -165,6 +186,49 @@
         //switchWithPeer();
 
     };
+    function GPSinit() {        
+        gpsDetect.checkGPS(onGPSSuccess, onGPSError);        
+        function onGPSSuccess(on) {
+            if (on) alert("GPS is enabled");
+            else alert("GPS is disabled");
+        }
+        function onGPSError(e) {
+            //alert("Error : " + e);
+        }        
+        gpsDetect.switchToLocationSettings(onSwitchToLocationSettingsSuccess, onSwitchToLocationSettingsError);        
+
+        function onSwitchToLocationSettingsSuccess() {
+        }
+        function onSwitchToLocationSettingsError(e) {
+            alert("Error : " + e);
+        }
+        // now record coordinates
+        // onSuccess Callback
+        // This method accepts a Position object, which contains the
+        // current GPS coordinates
+        //
+        var onSuccess = function (position) {
+            navigator.notification.alert('Latitude: ' + position.coords.latitude + '\n' +
+                'Longitude: ' + position.coords.longitude + '\n' +
+                'Altitude: ' + position.coords.altitude + '\n' +
+                'Accuracy: ' + position.coords.accuracy + '\n' +
+                'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
+                'Heading: ' + position.coords.heading + '\n' +
+                'Speed: ' + position.coords.speed + '\n' +
+                'Timestamp: ' + position.timestamp + '\n');
+            thisAddr += "{ lat: " + position.coords.latitude + " long: " + position.coords.longitude + " alt: " + position.coords.altitude + " time: " + position.timestamp + " }";
+        };
+
+        // onError Callback receives a PositionError object
+        //
+        function onError(error) {
+            navigator.notification.alert('code: ' + error.code + '\n' +
+                'message: ' + error.message + '\n');
+        }
+
+        navigator.geolocation.getCurrentPosition(onSuccess, onError);
+
+    }
     function onPause() {
         // TODO: This application has been suspended. Save application state here.
     };
@@ -231,7 +295,8 @@
 
         return count;
     }
-    function switchWithPeer() {       
+    function switchWithPeer() {
+        getOtherTeeth();
         var storage = window.localStorage;  
         var isResp = storage.getItem("isResponder");
         if (isResp == "1") {
@@ -271,7 +336,7 @@
         storage.setItem("history", broadCastHist);
         //navigator.geolocation.getCurrentPosition(onSuccess, onError);
     }    
-    function setBeacon() {
+    function setThisBeaconMsg() {
         var storage = window.localStorage;
         var thisAddr = storage.getItem("addr");
         networking.bluetooth.getAdapterState(function (adapterInfo) {

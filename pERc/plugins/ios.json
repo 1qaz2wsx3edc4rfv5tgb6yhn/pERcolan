@@ -30,6 +30,10 @@
         },
         "cordova-plugin-shake": {
             "PACKAGE_NAME": "io.cordova.myapp8a170b"
+        },
+        "cordova-plugin-geolocation": {
+            "GEOLOCATION_USAGE_DESCRIPTION": " ",
+            "PACKAGE_NAME": "io.cordova.myapp8a170b"
         }
     },
     "dependent_plugins": {
