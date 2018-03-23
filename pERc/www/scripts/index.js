@@ -98,13 +98,13 @@
                 var storage = window.localStorage;
                 var storage2 = window.localStorage;
                 storage.setItem("isResponder", "1");
-                storage2.setItem("addr", results.input1);
+                storage2.setItem("addr", thisAddr + results.input1);
             }
             else {
                 var storage = window.localStorage;
                 var storage2 = window.localStorage;
                 storage.setItem("isResponder", "0");
-                storage2.setItem("addr", results.input1);
+                storage2.setItem("addr", thisAddr + results.input1);
             }
         }
     } 
@@ -153,7 +153,7 @@
                     shake.stopWatch();
                     var storage = window.localStorage;
                     thisAddr = storage.getItem("addr");
-                    navigator.notification.alert(thisAddr + ' is broadcasting');
+                    //navigator.notification.alert(thisAddr + ' is broadcasting w/GPS: ');
                 }            
         };
         var onError = function () {
@@ -189,19 +189,22 @@
     function GPSinit() {        
         gpsDetect.checkGPS(onGPSSuccess, onGPSError);        
         function onGPSSuccess(on) {
-            if (on) alert("GPS is enabled");
+            if (on)
+            {
+                //alert("GPS is enabled");
+            }
             else alert("GPS is disabled");
         }
         function onGPSError(e) {
             //alert("Error : " + e);
         }        
-        gpsDetect.switchToLocationSettings(onSwitchToLocationSettingsSuccess, onSwitchToLocationSettingsError);        
+        //gpsDetect.switchToLocationSettings(onSwitchToLocationSettingsSuccess, onSwitchToLocationSettingsError);        
 
-        function onSwitchToLocationSettingsSuccess() {
-        }
-        function onSwitchToLocationSettingsError(e) {
-            alert("Error : " + e);
-        }
+        //function onSwitchToLocationSettingsSuccess() {
+        //}
+        //function onSwitchToLocationSettingsError(e) {
+        //    alert("Error : " + e);
+        //}
         // now record coordinates
         // onSuccess Callback
         // This method accepts a Position object, which contains the
@@ -217,6 +220,9 @@
                 'Speed: ' + position.coords.speed + '\n' +
                 'Timestamp: ' + position.timestamp + '\n');
             thisAddr += "{ lat: " + position.coords.latitude + " long: " + position.coords.longitude + " alt: " + position.coords.altitude + " time: " + position.timestamp + " }";
+
+            var storage = window.localStorage;
+            storage.setItem("gps", thisAddr);
         };
 
         // onError Callback receives a PositionError object
