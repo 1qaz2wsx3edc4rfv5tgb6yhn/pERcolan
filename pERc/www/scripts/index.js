@@ -23,6 +23,9 @@
     var switchToAddr = '';
     var gpsCord = ''; // eg 40.446° N 79.982° W
 
+    //var exit = document.getElementById("exit");
+    //exit.addEventListener('click', function () { exit(); }, false);
+
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
     document.addEventListener('pause', onPause.bind(this), false);
     document.addEventListener('resume', onResume.bind(this), false);
@@ -47,9 +50,6 @@
             permissions.BLUETOOTH,
             permissions.BLUETOOTH_ADMIN,
             permissions.ACCESS_COARSE_LOCATION,
-            permissions.BLUETOOTH,
-            permissions.BLUETOOTH_ADMIN,
-            permissions.ACCESS_COARSE_LOCATION,
             permissions.ACCESS_FINE_LOCATION,
             permissions.INTERNET,
             permissions.ACCESS_LOCATION_EXTRA_COMMANDS,
@@ -64,9 +64,6 @@
             permissions.NFC,
             permissions.READ_SYNC_SETTINGS,
             permissions.READ_SYNC_STAT
-            
-            //permissions.LOCATION_HARDWARE
-            //permissions.VIBRATE
         ];
         
         permissions.hasPermission(list, null, null); // deprecated, but it takes a list...does updated API take list obj?
@@ -118,6 +115,11 @@
     function shakeDetectThread() {
         var launchPerc = 1;
         var onShake = function () {
+            try {
+                // wake up app, above threshold shaking detected from background app
+                cordova.plugins.backgroundMode.moveToForeground();
+            }
+            catch(error){ }
             turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
                 (function () {
                     launchPerc = 0;
@@ -165,9 +167,27 @@
         // Stop watching for shake gestures
         //shake.stopWatch();
     }
+    //function exit() {
+    //    var exit = document.getElementById("exit");
+    //    exit.innerHTML = "Background run mode is OFF";
+    //    exit.style.color = "green";
+    //    var wrapper = document.getElementById("deviceready");
+    //    wrapper.appendChild(exit);
+    //    cordova.plugins.backgroundMode.disable();
+    //}
     function onDeviceReady() {
-        //var check = document.getElementById("check");
-        //check.addEventListener('click', function () { GPSinit(); }, false);
+        
+
+        
+        try {
+            // enable run in background mode
+            cordova.plugins.backgroundMode.enable();
+            // prevent exit
+            cordova.plugins.backgroundMode.overrideBackButton();
+            // remove from tasks list
+            cordova.plugins.backgroundMode.excludeFromTaskList();
+        }
+        catch(error){ navigator.notification.alert('background run function(s) error: ' + error) }
 
         GPSinit();
 
@@ -330,6 +350,9 @@
                                 var str = document.getElementById("history").innerHTML;
                                
                                 document.getElementById("history").innerHTML += "{" + device_names[key] + "}";
+                                var re = new RegExp('\b(\w+)(?:\s+\1\b)+');
+                                var rslt = re.exec(document.getElementById("history").innerHTML);
+                                document.getElementById("history").innerHTML += rslt;
                             }
                             //navigator.notification.alert(key + " -> " + device_names[key]);
                             cnt++;

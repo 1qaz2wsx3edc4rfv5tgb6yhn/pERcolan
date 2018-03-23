@@ -34,10 +34,16 @@
         "cordova-plugin-geolocation": {
             "GEOLOCATION_USAGE_DESCRIPTION": " ",
             "PACKAGE_NAME": "io.cordova.myapp8a170b"
+        },
+        "cordova-plugin-background-mode": {
+            "PACKAGE_NAME": "io.cordova.myapp8a170b"
         }
     },
     "dependent_plugins": {
         "cordova-plugin-compat": {
+            "PACKAGE_NAME": "io.cordova.myapp8a170b"
+        },
+        "cordova-plugin-device": {
             "PACKAGE_NAME": "io.cordova.myapp8a170b"
         }
     }

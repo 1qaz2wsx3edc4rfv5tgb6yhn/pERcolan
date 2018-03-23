@@ -115,4 +115,5 @@
   <plugin name="cordova-plugin-shake" spec="~0.6.0" />
   <plugin name="cordova-plugin-device-motion" spec="~2.0.0" />
   <plugin name="cordova-plugin-geolocation" spec="~2.4.3" />
+  <plugin name="cordova-plugin-background-mode" spec="~0.7.2" />
 </widget>
