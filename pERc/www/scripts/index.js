@@ -18,7 +18,7 @@
     var devices = [""];
     var broadCastHist = {}; 
     var isResponder = 0;
-    var thisAddr = '1234YourWay';
+    var thisAddr = '+';
     var firstRun = 1;
     var switchToAddr = '';
     var gpsCord = ''; // eg 40.446° N 79.982° W
@@ -108,16 +108,16 @@
     function addrResponderMenu() {
         var storage = window.localStorage;
         var storage2 = window.localStorage;
-        thisAddr = storage.getItem("addr");
-        isResponder = storage2.getItem("isResponder");
-        navigator.notification.alert("addr: " + thisAddr + "    " + "isResponder? " + isResponder);
+        var _thisAddr = storage.getItem("addr");
+        var _isResponder = storage2.getItem("isResponder");
+        //navigator.notification.alert("addr: " + thisAddr + "    " + "isResponder? " + isResponder);
     }
     function shakeDetectThread() {
         var launchPerc = 1;
         var onShake = function () {
             try {
                 // wake up app, above threshold shaking detected from background app
-                cordova.plugins.backgroundMode.moveToForeground();
+                //cordova.plugins.backgroundMode.moveToForeground();
             }
             catch(error){ }
             turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
@@ -153,8 +153,8 @@
                 // Fired after a shake is detected and blutooth event loop has launched abpve
                 if (launchPerc == 0) {
                     shake.stopWatch();
-                    var storage = window.localStorage;
-                    thisAddr = storage.getItem("addr");
+                    //var storage = window.localStorage;
+                    //thisAddr = storage.getItem("gps") + " ::: " + storage.getItem("addr");
                     //navigator.notification.alert(thisAddr + ' is broadcasting w/GPS: ');
                 }            
         };
@@ -175,27 +175,50 @@
     //    wrapper.appendChild(exit);
     //    cordova.plugins.backgroundMode.disable();
     //}
+    function showAllSessionVars() {
+        var storage = window.localStorage;
+        var storage2 = window.localStorage;
+        var storage3 = window.localStorage;
+        var _thisAddr = storage.getItem("addr");
+        var _isResponder = storage2.getItem("isResponder");
+        var _gps = storage3.getItem("gps");
+
+        navigator.notification.alert("addr: " + _thisAddr + " isResponder: " + _isResponder + " gps: " + _gps);
+    }
     function onDeviceReady() {
-        
+        // need an initial random address before user to ui input so that network peers are not seen as the same
+        var selected = 0;
+        selected = getRandomInt(0, 1024);
+        thisAddr += selected;
 
-        
-        try {
-            // enable run in background mode
-            cordova.plugins.backgroundMode.enable();
-            // prevent exit
-            cordova.plugins.backgroundMode.overrideBackButton();
-            // remove from tasks list
-            cordova.plugins.backgroundMode.excludeFromTaskList();
-        }
-        catch(error){ navigator.notification.alert('background run function(s) error: ' + error) }
+        showAllSessionVars();
 
+        setupTasks();
+
+        // turn on and session store local gps coords
         GPSinit();
+
+        // now get beacon msg from user and 1st responder status
+        localPhysicalAddr();
+
+        // take commented out code put in "onExit()" type event --->
+        // ---> try {
+        //    // enable run in background mode
+        //    cordova.plugins.backgroundMode.enable();
+        //    // prevent exit
+        //    cordova.plugins.backgroundMode.overrideBackButton();
+        //    // remove from tasks list
+        //    cordova.plugins.backgroundMode.excludeFromTaskList();
+        //}
+        //catch (error) { navigator.notification.alert('background run function(s) error: ' + error); }
+
+        
 
         shakeDetectThread(); // main event loop
         
 
-        setupTasks();
-        localPhysicalAddr();
+        
+        
 
 
   //      turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
@@ -211,7 +234,7 @@
         function onGPSSuccess(on) {
             if (on)
             {
-                //alert("GPS is enabled");
+                alert("GPS is enabled");
             }
             else alert("GPS is disabled");
         }
@@ -242,7 +265,8 @@
             thisAddr += "{ lat: " + position.coords.latitude + " long: " + position.coords.longitude + " alt: " + position.coords.altitude + " time: " + position.timestamp + " }";
 
             var storage = window.localStorage;
-            storage.setItem("gps", thisAddr);
+            storage.setItem("addr", thisAddr);
+            bluetoothSerial.setName(thisAddr);      
         };
 
         // onError Callback receives a PositionError object
@@ -345,14 +369,15 @@
                                 bluetoothSerial.setName(device_names[key]);                                
                                 chosen = 1;
                                 broadCastHist[key] += device_names[key];
-                                document.getElementById("deviceProperties").innerHTML = "current neighbor msg: " + device_names[key]; 
+                                document.getElementById("deviceProperties").innerHTML = "{" + broadCastHist[key] + "}"; 
                                
                                 var str = document.getElementById("history").innerHTML;
-                               
-                                document.getElementById("history").innerHTML += "{" + device_names[key] + "}";
-                                var re = new RegExp('\b(\w+)(?:\s+\1\b)+');
-                                var rslt = re.exec(document.getElementById("history").innerHTML);
-                                document.getElementById("history").innerHTML += rslt;
+
+                                // octet literal error in strict mode:
+                                //document.getElementById("history").innerHTML += "{" + device_names[key] + "}";
+                                //var re = new RegExp('\b(\w+)(?:\s+\1\b)+');
+                                //var rslt = re.exec(document.getElementById("history").innerHTML);
+                                //document.getElementById("history").innerHTML += rslt;
                             }
                             //navigator.notification.alert(key + " -> " + device_names[key]);
                             cnt++;
@@ -361,15 +386,15 @@
             }
         }
         // works!! navigator.notification.alert(broadCastHist)
-        var storage = window.localStorage;
-        storage.setItem("history", broadCastHist);
+        var storage2 = window.localStorage;
+        storage2.setItem("history", broadCastHist);
         //navigator.geolocation.getCurrentPosition(onSuccess, onError);
     }    
     function setThisBeaconMsg() {
         var storage = window.localStorage;
-        var thisAddr = storage.getItem("addr");
+        var thisGPS = storage.getItem("gps");
         networking.bluetooth.getAdapterState(function (adapterInfo) {
-            bluetoothSerial.setName(thisAddr);
+            bluetoothSerial.setName(thisAddr + " gps: " + thisGPS);
         }, function (errorMessage) {
             navigator.notification.alert(errorMessage);
         });
