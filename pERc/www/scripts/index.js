@@ -27,13 +27,13 @@
     //exit.addEventListener('click', function () { exit(); }, false);
 
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
-    document.addEventListener('pause', onPause.bind(this), false);
-    document.addEventListener('resume', onResume.bind(this), false);
+    //document.addEventListener('pause', onPause.bind(this), false);
+    //document.addEventListener('resume', onResume.bind(this), false);
     // didnt fly: document.addEventListener("touchstart", function () { touchStart; }, false);
 
-    function touchStart() {
-        navigator.notification.alert("touched");
-    }
+    //function touchStart() {
+    //    navigator.notification.alert("touched");
+    //}
     function setupTasks() {
         // TODO: Cordova has been loaded. Perform any initialization that requires Cordova here.
         var parentElement = document.getElementById('deviceready');
@@ -48,7 +48,7 @@
             permissions.CAMERA,
             permissions.GET_ACCOUNTS,
             permissions.BLUETOOTH,
-            permissions.BLUETOOTH_ADMIN,
+            //permissions.BLUETOOTH_ADMIN,
             permissions.ACCESS_COARSE_LOCATION,
             permissions.ACCESS_FINE_LOCATION,
             permissions.INTERNET,
@@ -65,45 +65,46 @@
             permissions.READ_SYNC_SETTINGS,
             permissions.READ_SYNC_STAT
         ];
-        permissions.requestPermissions(list, success, error);
-        //permissions.hasPermission(list, null, null); // deprecated, but it takes a list...does updated API take list obj?
-        //navigator.notification.alert("setup done");
-        function error() {
-            console.warn('error');
-        }
-        function success(status) {
-            if (!status.hasPermission) {
+        //permissions.requestPermission(list, success, error);
+        permissions.hasPermission(list, null, null); // deprecated, but it takes a list...does updated API take list obj?
 
-                permissions.requestPermissions(
-                    list,
-                    function (status) {
-                        if (!status.hasPermission) error();
-                    },
-                    error);
-            }
-        }
+        //function error() {
+        //    console.warn('permission error bitches');
+        //}
+
+        //function success(status) {
+        //    if (!status.hasPermission) {
+
+        //        permissions.requestPermissions(
+        //            list,
+        //            function (status) {
+        //                if (!status.hasPermission) error();
+        //            },
+        //            error);
+        //    }
+        //}
     }
     function localPhysicalAddr() {
-        navigator.notification.prompt(
-            'Enter your address into the window. Also, Are you a First Responder? (if Yes, you will collect unique emergency requests on your device)',  // message
-            onPrompt,                  // callback to invoke
-            'For First Responders',    // title
-            ['Yes', 'No']              // buttonLabels
-        );
-        function onPrompt(results) { // when not firstreposnderr addr is blank on refresh
-            if (results.buttonIndex == 1) {
-                var storage = window.localStorage;
-                var storage2 = window.localStorage;
-                storage.setItem("isResponder", "1");
-                storage2.setItem("addr", thisAddr + results.input1);
-            }
-            else {
-                var storage = window.localStorage;
-                var storage2 = window.localStorage;
-                storage.setItem("isResponder", "0");
-                storage2.setItem("addr", thisAddr + results.input1);
-            }
-        }
+        //navigator.notification.prompt(
+        //    'Enter your address into the window. Also, Are you a First Responder? (if Yes, you will collect unique emergency requests on your device)',  // message
+        //    onPrompt,                  // callback to invoke
+        //    'For First Responders',    // title
+        //    ['Yes', 'No']              // buttonLabels
+        //);
+        //function onPrompt(results) { // when not firstreposnderr addr is blank on refresh
+        //    if (results.buttonIndex == 1) {
+        //        var storage = window.localStorage;
+        //        var storage2 = window.localStorage;
+        //        storage.setItem("isResponder", "1");
+        //        storage2.setItem("addr", thisAddr + results.input1);
+        //    }
+        //    else {
+        //        var storage = window.localStorage;
+        //        var storage2 = window.localStorage;
+        //        storage.setItem("isResponder", "0");
+        //        storage2.setItem("addr", thisAddr + results.input1);
+        //    }
+        //}
     } 
     function addrResponderMenu() {
         var storage = window.localStorage;
@@ -114,35 +115,43 @@
     }
     function shakeDetectThread() {
         
-        //navigator.notification.alert('started shake watch');
-        var launchPerc = 1;
-        var onShake = function () {
-            navigator.notification.alert('shake detected');
-            turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
-            (function () {
-                setInterval(switchWithPeer, 1000);
-                launchPerc = 0;
-            })();
-            // Fired after a shake is detected and blutooth event loop has launched abpve
-            //if (launchPerc == 0) {
-            //    // read address, set beacon
-            //    //shake.stopWatch();
-            //    var storage = window.localStorage;
-            //    thisAddr = storage.getItem("addr");
-            //    //navigator.notification.alert(thisAddr + ' is broadcasting');
-            //}
-        };
+            //navigator.notification.alert('started shake watch');
+        //var launchPerc = 1;
+        //turnBluOn();
+        //setThisBeaconMsg(makeThisPublic(getOtherTeeth()));
+        //(function () {
+        //    setInterval(switchWithPeer, 12000);
+        //})();
+            var onShake = function () {
+                navigator.notification.alert('shake detected');
+                turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
+                (function () {
+                    setInterval(switchWithPeer, 1000);
+                    launchPerc = 0;
+                })();
+                /* will never get here! */
+                navigator.notification.alert('after interval loop code');
 
-        var onError = function () {
-            navigator.notification.alert("accelerometer err");
-        };
+                // Fired after a shake is detected and blutooth event loop has launched abpve
+                if (launchPerc == 0) {
+                    // read address, set beacon
+                    //shake.stopWatch();
+                    var storage = window.localStorage;
+                    thisAddr = storage.getItem("addr");
+                    //navigator.notification.alert(thisAddr + ' is broadcasting');
+                }
+            };
 
-        // Start watching for shake gestures and call "onShake"
-        // with a shake sensitivity of 40 (optional, default 30)
-        shake.startWatch(onShake, 30, onError);
+            var onError = function () {
+                navigator.notification.alert("accelerometer err");
+            };
 
-        // Stop watching for shake gestures
-        //shake.stopWatch();
+             //Start watching for shake gestures and call "onShake"
+             //with a shake sensitivity of 40 (optional, default 30)
+            shake.startWatch(onShake, 10, onError);
+       
+
+        
     }
     //function exit() {
     //    var exit = document.getElementById("exit");
@@ -163,6 +172,8 @@
         //navigator.notification.alert("addr: " + _thisAddr + " isResponder: " + _isResponder + " gps: " + _gps);
     }
     function onDeviceReady() {
+       
+
         // need an initial random address before user to ui input so that network peers are not seen as the same
         var selected = 0;
         selected = getRandomInt(0, 1024);
@@ -218,7 +229,7 @@
         function onGPSError(e) {
             //alert("Error : " + e);
         }        
-        gpsDetect.switchToLocationSettings(onSwitchToLocationSettingsSuccess, onSwitchToLocationSettingsError);  
+        //gpsDetect.switchToLocationSettings(onSwitchToLocationSettingsSuccess, onSwitchToLocationSettingsError);  
         function onSwitchToLocationSettingsSuccess() {
         }
         function onSwitchToLocationSettingsError(e) {
@@ -252,9 +263,9 @@
         navigator.geolocation.getCurrentPosition(onSuccess, onError);
 
     }
-    function onPause() {
-        // TODO: This application has been suspended. Save application state here.
-    };
+    //function onPause() {
+    //    // TODO: This application has been suspended. Save application state here.
+    //};
     function connectSocket() {
         networking.bluetooth.connect(device.address, BASE_UUID, function (socketId) {
             // Profile implementation here.
@@ -262,9 +273,9 @@
             navigator.notification.alert('Connection failed: ' + errorMessage);
         });
     }
-    function onResume() {
-        // TODO: This application has been reactivated. Restore application state here.
-    };
+    //function onResume() {
+    //    // TODO: This application has been reactivated. Restore application state here.
+    //};
     function decideBeacon(numNeighs) { // eg set this blutooth name based upon pnp/neighbor router
         // *** commented out random selection ***
         var selected = 0;
@@ -319,6 +330,9 @@
         return count;
     }
     function switchWithPeer() {
+        // Stop watching for shake gestures
+        //shake.stopWatch();
+
         getOtherTeeth();
         var storage = window.localStorage;  
         var isResp = storage.getItem("isResponder");
