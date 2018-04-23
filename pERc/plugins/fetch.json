@@ -31,15 +31,6 @@
         "is_top_level": true,
         "variables": {}
     },
-    "cordova-plugin-android-permissions": {
-        "source": {
-            "type": "git",
-            "url": "https://github.com/NeoLSN/cordova-plugin-android-permissions",
-            "subdir": "."
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
     "cordova-plugin-bluetooth-serial": {
         "source": {
             "type": "git",
@@ -61,14 +52,6 @@
         "source": {
             "type": "registry",
             "id": "cordova-plugin-android-gpsdetect"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
-    "cordova-plugin-shake": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-shake"
         },
         "is_top_level": true,
         "variables": {}
@@ -103,6 +86,22 @@
             "id": "cordova-plugin-device"
         },
         "is_top_level": false,
+        "variables": {}
+    },
+    "cordova-plugin-android-permissions": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-android-permissions"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-shake": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-shake"
+        },
+        "is_top_level": true,
         "variables": {}
     }
 }

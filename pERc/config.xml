@@ -103,7 +103,6 @@
   </platform>
   <plugin name="cordova-plugin-dialogs" spec="~1.3.3" />
   <plugin name="cordova-plugin-networking-bluetooth" spec="~1.0.3" />
-  <plugin name="cordova-plugin-android-permissions" spec="~1.0.0" src="https://github.com/NeoLSN/cordova-plugin-android-permissions" />
   <plugin name="cordova-plugin-bluetooth-serial" spec="~0.4.7" src="https://github.com/don/BluetoothSerial" />
   <plugin name="cordova-plugin-file" spec="~4.3.3" />
   <vs:toolsetVersion>6.3.1</vs:toolsetVersion>
@@ -112,9 +111,10 @@
   <engine name="windows" spec="4.4.2" />
   <preference name="Fullscreen" value="True" />
   <plugin name="cordova-plugin-android-gpsdetect" spec="~0.0.3" />
-  <plugin name="cordova-plugin-shake" spec="~0.6.0" />
-  <plugin name="cordova-plugin-device-motion" spec="~2.0.0" />
   <plugin name="cordova-plugin-geolocation" spec="~2.4.3" />
   <plugin name="cordova-plugin-background-mode" spec="~0.7.2" />
   <plugin name="cordova-plugin-device" spec="~2.0.1" />
+  <plugin name="cordova-plugin-android-permissions" spec="~1.0.0" />
+  <plugin name="cordova-plugin-shake" spec="~0.6.0" />
+  <plugin name="cordova-plugin-device-motion" spec="~2.0.0" />
 </widget>

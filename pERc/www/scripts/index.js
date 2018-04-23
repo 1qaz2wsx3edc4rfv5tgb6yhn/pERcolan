@@ -65,8 +65,8 @@
             permissions.READ_SYNC_SETTINGS,
             permissions.READ_SYNC_STAT
         ];
-        
-        permissions.hasPermission(list, null, null); // deprecated, but it takes a list...does updated API take list obj?
+        permissions.requestPermissions(list, success, error);
+        //permissions.hasPermission(list, null, null); // deprecated, but it takes a list...does updated API take list obj?
         //navigator.notification.alert("setup done");
         function error() {
             console.warn('error');
@@ -113,57 +113,34 @@
         //navigator.notification.alert("addr: " + thisAddr + "    " + "isResponder? " + isResponder);
     }
     function shakeDetectThread() {
+        
+        //navigator.notification.alert('started shake watch');
         var launchPerc = 1;
         var onShake = function () {
-            try {
-                // wake up app, above threshold shaking detected from background app
-                //cordova.plugins.backgroundMode.moveToForeground();
-            }
-            catch(error){ }
-            turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
-                (function () {
-                    launchPerc = 0;
-                    setInterval(switchWithPeer, 1000);
-                })();
-                // promises snippet replaces nested callbacks and to allow error bubbling up
-                //getOtherTeeth()
-                //    .then(makeThisPublic)
-                //    .then(setBeacon)
-                //    .then(loopBeaconing)
-                //    .catch(function (error) {
-                //        navigator.notification.alert(error);
-                //    })
-
-                //function loopBeaconing(response) {
-                //    setInterval(switchWithPeer, 1000);
-                //    launchPerc = 0;
-                //    if (launchPerc != 0) {
-                //        return Promise.reject('perc is running flag not set!');
-                //    }
-                //    return Promise.resolve(response); // unused
-                //}
-                //function turnBluOn() {
-                //     fetch and log user's profile info with the userName passed in
-                //     from the authStatus function
-                //    getOtherTeeth()
-                //        .then(function (response) {
-                //            navigator.notification.alert(response);
-                //        })
-                //}
-                // Fired after a shake is detected and blutooth event loop has launched abpve
-                if (launchPerc == 0) {
-                    shake.stopWatch();
-                    //var storage = window.localStorage;
-                    //thisAddr = storage.getItem("gps") + " ::: " + storage.getItem("addr");
-                    //navigator.notification.alert(thisAddr + ' is broadcasting w/GPS: ');
-                }            
+            navigator.notification.alert('shake detected');
+            turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
+            (function () {
+                setInterval(switchWithPeer, 1000);
+                launchPerc = 0;
+            })();
+            // Fired after a shake is detected and blutooth event loop has launched abpve
+            //if (launchPerc == 0) {
+            //    // read address, set beacon
+            //    //shake.stopWatch();
+            //    var storage = window.localStorage;
+            //    thisAddr = storage.getItem("addr");
+            //    //navigator.notification.alert(thisAddr + ' is broadcasting');
+            //}
         };
+
         var onError = function () {
             navigator.notification.alert("accelerometer err");
         };
+
         // Start watching for shake gestures and call "onShake"
         // with a shake sensitivity of 40 (optional, default 30)
-        shake.startWatch(onShake, 5 , onError);
+        shake.startWatch(onShake, 30, onError);
+
         // Stop watching for shake gestures
         //shake.stopWatch();
     }
@@ -183,7 +160,7 @@
         var _isResponder = storage2.getItem("isResponder");
         var _gps = storage3.getItem("gps");
 
-        navigator.notification.alert("addr: " + _thisAddr + " isResponder: " + _isResponder + " gps: " + _gps);
+        //navigator.notification.alert("addr: " + _thisAddr + " isResponder: " + _isResponder + " gps: " + _gps);
     }
     function onDeviceReady() {
         // need an initial random address before user to ui input so that network peers are not seen as the same
@@ -191,7 +168,7 @@
         selected = getRandomInt(0, 1024);
         thisAddr += selected;
 
-        showAllSessionVars();
+        //showAllSessionVars();
 
         setupTasks();
 
@@ -213,7 +190,7 @@
         //catch (error) { navigator.notification.alert('background run function(s) error: ' + error); }
 
         
-
+        //navigator.notification.alert('right before shake detect call');
         shakeDetectThread(); // main event loop
         
 
@@ -234,48 +211,44 @@
         function onGPSSuccess(on) {
             if (on)
             {
-                alert("GPS is enabled");
+                //alert("GPS is enabled");
             }
             else alert("GPS is disabled");
         }
         function onGPSError(e) {
             //alert("Error : " + e);
         }        
-        //gpsDetect.switchToLocationSettings(onSwitchToLocationSettingsSuccess, onSwitchToLocationSettingsError);        
-
-        //function onSwitchToLocationSettingsSuccess() {
-        //}
-        //function onSwitchToLocationSettingsError(e) {
-        //    alert("Error : " + e);
-        //}
-        // now record coordinates
-        // onSuccess Callback
-        // This method accepts a Position object, which contains the
-        // current GPS coordinates
-        //
+        gpsDetect.switchToLocationSettings(onSwitchToLocationSettingsSuccess, onSwitchToLocationSettingsError);  
+        function onSwitchToLocationSettingsSuccess() {
+        }
+        function onSwitchToLocationSettingsError(e) {
+            alert("Error : " + e);
+        }
+         //now record coordinates
+         //onSuccess Callback
+         //This method accepts a Position object, which contains the
+         //current GPS coordinates        
         var onSuccess = function (position) {
-            navigator.notification.alert('Latitude: ' + position.coords.latitude + '\n' +
+            /*navigator.notification.alert('Latitude: ' + position.coords.latitude + '\n' +
                 'Longitude: ' + position.coords.longitude + '\n' +
                 'Altitude: ' + position.coords.altitude + '\n' +
                 'Accuracy: ' + position.coords.accuracy + '\n' +
                 'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
                 'Heading: ' + position.coords.heading + '\n' +
                 'Speed: ' + position.coords.speed + '\n' +
-                'Timestamp: ' + position.timestamp + '\n');
+                'Timestamp: ' + position.timestamp + '\n');*/
             thisAddr += "{ lat: " + position.coords.latitude + " long: " + position.coords.longitude + " alt: " + position.coords.altitude + " time: " + position.timestamp + " }";
 
             var storage = window.localStorage;
             storage.setItem("addr", thisAddr);
             bluetoothSerial.setName(thisAddr);      
         };
-
         // onError Callback receives a PositionError object
         //
         function onError(error) {
             navigator.notification.alert('code: ' + error.code + '\n' +
                 'message: ' + error.message + '\n');
         }
-
         navigator.geolocation.getCurrentPosition(onSuccess, onError);
 
     }
@@ -396,7 +369,7 @@
         networking.bluetooth.getAdapterState(function (adapterInfo) {
             bluetoothSerial.setName(thisAddr + " gps: " + thisGPS);
         }, function (errorMessage) {
-            navigator.notification.alert(errorMessage);
+            //navigator.notification.alert(errorMessage);
         });
     }
     function turnBluOn() {
@@ -409,7 +382,7 @@
             // discoverable: Boolean --> Indicates whether or not the adapter is currently discoverable.
             // adapterInfo.name = "adaptor name set - permissions granted"; // careful with local cache of names, could get stale
         }, function (errorMessage) {
-            navigator.notification.alert(errorMessage);
+            //navigator.notification.alert(errorMessage);
         });
 
         var enabled = false;
@@ -454,7 +427,7 @@
                 // paired: Boolean --> Indicates whether or not the device is paired with the system.
                 // uuids: Array of String --> UUIDs of protocols, profiles and services advertised by the device.
                 if (j == i) {
-                    navigator.notification.alert(devices[i].address + "|" + devices[i].name);
+                    //navigator.notification.alert(devices[i].address + "|" + devices[i].name);
                 }
             }
         });
