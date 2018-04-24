@@ -122,7 +122,9 @@
         //(function () {
         //    setInterval(switchWithPeer, 12000);
         //})();
-            var onShake = function () {
+        var onShake = function () {
+                shake.stopWatch();
+                shake = null;
                 navigator.notification.alert('shake detected');
                 turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
                 (function () {
@@ -356,7 +358,8 @@
                                 bluetoothSerial.setName(device_names[key]);                                
                                 chosen = 1;
                                 broadCastHist[key] += device_names[key];
-                                document.getElementById("deviceProperties").innerHTML = "{" + broadCastHist[key] + "}"; 
+                                document.getElementById("deviceProperties").style.font = "italic bold 10px arial,serif";
+                                document.getElementById("deviceProperties").innerHTML = "{" + broadCastHist[key] + "}" + "<br />"; 
                                
                                 var str = document.getElementById("history").innerHTML;
 
