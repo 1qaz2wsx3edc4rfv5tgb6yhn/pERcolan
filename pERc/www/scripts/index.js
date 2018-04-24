@@ -9,6 +9,51 @@
 //        has permeated 100m-contiguous PERC clients which may or may not be able to assist (upon receiving your address/txtmsg) or may be a fire, police, etc
 //        associated PERC installed cell/bluetooth (android) device.
 //
+//
+// list of automatically granted permissions android 6 sdk 23 2015+
+/*
+
+android.permission.ACCESS_LOCATION_EXTRA_COMMANDS
+android.permission.ACCESS_NETWORK_STATE
+android.permission.ACCESS_NOTIFICATION_POLICY
+android.permission.ACCESS_WIFI_STATE
+android.permission.ACCESS_WIMAX_STATE
+android.permission.BLUETOOTH
+android.permission.BLUETOOTH_ADMIN
+android.permission.BROADCAST_STICKY
+android.permission.CHANGE_NETWORK_STATE
+android.permission.CHANGE_WIFI_MULTICAST_STATE
+android.permission.CHANGE_WIFI_STATE
+android.permission.CHANGE_WIMAX_STATE
+android.permission.DISABLE_KEYGUARD
+android.permission.EXPAND_STATUS_BAR
+android.permission.FLASHLIGHT
+android.permission.GET_ACCOUNTS
+android.permission.GET_PACKAGE_SIZE
+android.permission.INTERNET
+android.permission.KILL_BACKGROUND_PROCESSES
+android.permission.MODIFY_AUDIO_SETTINGS
+android.permission.NFC
+android.permission.READ_SYNC_SETTINGS
+android.permission.READ_SYNC_STATS
+android.permission.RECEIVE_BOOT_COMPLETED
+android.permission.REORDER_TASKS
+android.permission.REQUEST_INSTALL_PACKAGES
+android.permission.SET_TIME_ZONE
+android.permission.SET_WALLPAPER
+android.permission.SET_WALLPAPER_HINTS
+android.permission.SUBSCRIBED_FEEDS_READ
+android.permission.TRANSMIT_IR
+android.permission.USE_FINGERPRINT
+android.permission.VIBRATE
+android.permission.WAKE_LOCK
+android.permission.WRITE_SYNC_SETTINGS
+com.android.alarm.permission.SET_ALARM
+com.android.launcher.permission.INSTALL_SHORTCUT
+com.android.launcher.permission.UNINSTALL_SHORTCUT
+
+*/
+
 
 // *** shake detect is ios ready *** //
 
@@ -27,13 +72,7 @@
     //exit.addEventListener('click', function () { exit(); }, false);
 
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
-    //document.addEventListener('pause', onPause.bind(this), false);
-    //document.addEventListener('resume', onResume.bind(this), false);
-    // didnt fly: document.addEventListener("touchstart", function () { touchStart; }, false);
-
-    //function touchStart() {
-    //    navigator.notification.alert("touched");
-    //}
+  
     function setupTasks() {
         // TODO: Cordova has been loaded. Perform any initialization that requires Cordova here.
         var parentElement = document.getElementById('deviceready');
@@ -41,13 +80,12 @@
         var receivedElement = parentElement.querySelector('.received');
         listeningElement.setAttribute('style', 'display:none;');
         receivedElement.setAttribute('style', 'display:block;');
-        //navigator.notification.alert("before perms cordova.plugins.permissions");
         var permissions = cordova.plugins.permissions;
         // perms req android 6
         var list = [
             permissions.CAMERA,
             permissions.GET_ACCOUNTS,
-            permissions.BLUETOOTH,
+            //permissions.BLUETOOTH,
             //permissions.BLUETOOTH_ADMIN,
             permissions.ACCESS_COARSE_LOCATION,
             permissions.ACCESS_FINE_LOCATION,
@@ -113,47 +151,63 @@
         var _isResponder = storage2.getItem("isResponder");
         //navigator.notification.alert("addr: " + thisAddr + "    " + "isResponder? " + isResponder);
     }
-    function shakeDetectThread() {
-        
-            //navigator.notification.alert('started shake watch');
-        //var launchPerc = 1;
-        //turnBluOn();
-        //setThisBeaconMsg(makeThisPublic(getOtherTeeth()));
-        //(function () {
-        //    setInterval(switchWithPeer, 12000);
-        //})();
-        var onShake = function () {
-                shake.stopWatch();
-                shake = null;
-                navigator.notification.alert('shake detected');
+    function getAccel() {
+        var z = null;
+        function onSuccess(acceleration) {
+            //navigator.notification.alert('Acceleration X: ' + acceleration.x + '\n' +
+            //    'Acceleration Y: ' + acceleration.y + '\n' +
+            //    'Acceleration Z: ' + acceleration.z + '\n' +
+            //    'Timestamp: ' + acceleration.timestamp + '\n');
+            z = acceleration.z; //(9.8 flat gravity)
+            navigator.accelerometer.clearWatch(watchID);
+            if (z > 10) {
+                navigator.notification.alert('ub quaken bichez');
                 turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
                 (function () {
                     setInterval(switchWithPeer, 1000);
-                    launchPerc = 0;
                 })();
-                /* will never get here! */
-                navigator.notification.alert('after interval loop code');
+            }
+           
+        }
 
-                // Fired after a shake is detected and blutooth event loop has launched abpve
-                if (launchPerc == 0) {
-                    // read address, set beacon
-                    //shake.stopWatch();
-                    var storage = window.localStorage;
-                    thisAddr = storage.getItem("addr");
-                    //navigator.notification.alert(thisAddr + ' is broadcasting');
-                }
-            };
+        function onError() {
+            navigator.notification.alert('onError!');
+        }
 
-            var onError = function () {
-                navigator.notification.alert("accelerometer err");
-            };
+        navigator.accelerometer.getCurrentAcceleration(onSuccess, onError);
 
-             //Start watching for shake gestures and call "onShake"
-             //with a shake sensitivity of 40 (optional, default 30)
-            shake.startWatch(onShake, 10, onError);
-       
+        var options = { frequency: 300 };  // Update every 0.3 seconds
+
+        var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
 
         
+
+    }
+    function shakeDetectThread() {
+        getAccel();
+        //var onShake = function () {
+        //    shake.stopWatch();
+        //    shake = null;
+        //    navigator.notification.alert('shake detected');
+        
+        //    /* will never get here! */
+        //    navigator.notification.alert('after interval loop code');
+        //                 // Fired after a shake is detected and blutooth event loop has launched abpve
+        //    if (launchPerc == 0) {
+        //        // read address, set beacon
+        //        //shake.stopWatch();
+        //        var storage = window.localStorage;
+        //        thisAddr = storage.getItem("addr");
+        //        //navigator.notification.alert(thisAddr + ' is broadcasting');
+        //    }
+        //};
+
+        //var onError = function () {
+        //        navigator.notification.alert("accelerometer err");
+        //    };
+        ////Start watching for shake gestures and call "onShake"
+        ////with a shake sensitivity of 40 (optional, default 30)
+        //shake.startWatch(onShake, 10, onError);
     }
     //function exit() {
     //    var exit = document.getElementById("exit");
@@ -174,8 +228,6 @@
         //navigator.notification.alert("addr: " + _thisAddr + " isResponder: " + _isResponder + " gps: " + _gps);
     }
     function onDeviceReady() {
-       
-
         // need an initial random address before user to ui input so that network peers are not seen as the same
         var selected = 0;
         selected = getRandomInt(0, 1024);
@@ -206,17 +258,6 @@
         //navigator.notification.alert('right before shake detect call');
         shakeDetectThread(); // main event loop
         
-
-        
-        
-
-
-  //      turnBluOn(setBeacon(makeThisPublic(getOtherTeeth())));
-		//(function () {
-  //          setInterval(switchWithPeer, 1000);
-  //      })();
-
-        //switchWithPeer();
 
     };
     function GPSinit() {        
