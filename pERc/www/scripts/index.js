@@ -152,21 +152,22 @@ com.android.launcher.permission.UNINSTALL_SHORTCUT
         //navigator.notification.alert("addr: " + thisAddr + "    " + "isResponder? " + isResponder);
     }
     function getAccel() {
-        var z = null;
+        //var z = null;
         function onSuccess(acceleration) {
-            //navigator.notification.alert('Acceleration X: ' + acceleration.x + '\n' +
-            //    'Acceleration Y: ' + acceleration.y + '\n' +
-            //    'Acceleration Z: ' + acceleration.z + '\n' +
-            //    'Timestamp: ' + acceleration.timestamp + '\n');
-            z = acceleration.z; //(9.8 flat gravity)
-            navigator.accelerometer.clearWatch(watchID);
-            if (z > 10) {
-                navigator.notification.alert('ub quaken bichez');
-                turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
-                (function () {
-                    setInterval(switchWithPeer, 1000);
-                })();
-            }
+            navigator.notification.alert('Acceleration X: ' + acceleration.x + '\n' +
+                'Acceleration Y: ' + acceleration.y + '\n' +
+                'Acceleration Z: ' + acceleration.z + '\n' +
+                'Timestamp: ' + acceleration.timestamp + '\n');
+            //z//(9.8 flat gravity)
+            
+            //if (acceleration.z > 10) {
+            //    navigator.notification.alert('ub quaken bichez');
+            //    //turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
+            //    //(function () {
+            //    //    setInterval(switchWithPeer, 1000);
+            //    //})();
+            //}
+            //navigator.accelerometer.clearWatch(watchID);
            
         }
 
@@ -176,9 +177,9 @@ com.android.launcher.permission.UNINSTALL_SHORTCUT
 
         navigator.accelerometer.getCurrentAcceleration(onSuccess, onError);
 
-        var options = { frequency: 300 };  // Update every 0.3 seconds
+        //var options = { frequency: 300 };  // Update every 0.3 seconds
 
-        var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+        //var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
 
         
 
@@ -400,7 +401,7 @@ com.android.launcher.permission.UNINSTALL_SHORTCUT
                                 chosen = 1;
                                 broadCastHist[key] += device_names[key];
                                 document.getElementById("deviceProperties").style.font = "italic bold 10px arial,serif";
-                                document.getElementById("deviceProperties").innerHTML = "{" + broadCastHist[key] + "}" + "<br />"; 
+                                document.getElementById("deviceProperties").innerHTML += "{" + broadCastHist[key] + "}" + "<br />"; 
                                
                                 var str = document.getElementById("history").innerHTML;
 
