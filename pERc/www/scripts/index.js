@@ -76,8 +76,8 @@ I	< 0.0017	< 0.1	Not felt	None
 II–III	0.0017 – 0.014	0.1 – 1.1	Weak	None
 IV	0.014 – 0.039	1.1 – 3.4	Light	None
 V	0.039 – 0.092	3.4 – 8.1	Moderate	Very light
-VI	0.092 – 0.18	8.1 – 16	Strong	Light
-VII	0.18 – 0.34	16 – 31	Very strong	Moderate
+VI	[[[ vert accel *** 0.092 – 0.18 ]]]	8.1 – 16	Strong	Light
+VII	[[[ vert acell *** 0.18 – 0.34 ]]]	16 – 31	Very strong	Moderate
 VIII	0.34 – 0.65	31 – 60	Severe	Moderate to heavy
 IX	0.65 – 1.24	60 – 116	Violent	Heavy
 X+	> 1.24	> 116	Extreme	Very heavy
@@ -151,28 +151,31 @@ Other intensity scales
         //            error);
         //    }
         //}
+       
     }
     function localPhysicalAddr() {
-        //navigator.notification.prompt(
-        //    'Enter your address into the window. Also, Are you a First Responder? (if Yes, you will collect unique emergency requests on your device)',  // message
-        //    onPrompt,                  // callback to invoke
-        //    'For First Responders',    // title
-        //    ['Yes', 'No']              // buttonLabels
-        //);
-        //function onPrompt(results) { // when not firstreposnderr addr is blank on refresh
-        //    if (results.buttonIndex == 1) {
-        //        var storage = window.localStorage;
-        //        var storage2 = window.localStorage;
-        //        storage.setItem("isResponder", "1");
-        //        storage2.setItem("addr", thisAddr + results.input1);
-        //    }
-        //    else {
-        //        var storage = window.localStorage;
-        //        var storage2 = window.localStorage;
-        //        storage.setItem("isResponder", "0");
-        //        storage2.setItem("addr", thisAddr + results.input1);
-        //    }
-        //}
+        if (firstRun == 1) {
+            navigator.notification.prompt(
+                'Enter your address into the window. Your GPS coords will be added as well. \n Also, Are you a First Responder? (if Yes, you will collect unique emergency requests on your device)',  // message
+                onPrompt,                  // callback to invoke
+                'For First Responders',    // title
+                ['Yes', 'No']              // buttonLabels
+            );
+            function onPrompt(results) { // when not firstreposnderr addr is blank on refresh
+                if (results.buttonIndex == 1) {
+                    var responderCook = window.localStorage;
+                    var addrCook = window.localStorage;
+                    responderCook.setItem("isResponder", "1");
+                    addrCook.setItem("addr", thisAddr + results.input1);
+                }
+                else {
+                    var responderCook2 = window.localStorage;
+                    var addrCook2 = window.localStorage;
+                    responderCook2.setItem("isResponder", "0");
+                    addrCook2.setItem("addr", thisAddr + results.input1);
+                }
+            }
+        }
     } 
     function addrResponderMenu() {
         var storage = window.localStorage;
@@ -181,6 +184,7 @@ Other intensity scales
         var _isResponder = storage2.getItem("isResponder");
         //navigator.notification.alert("addr: " + thisAddr + "    " + "isResponder? " + isResponder);
     }
+    var recursedAccelCount = 0;
     function getAccel() {
         //var z = null;
         function onSuccess(acceleration) {
@@ -190,12 +194,20 @@ Other intensity scales
             //    'Timestamp: ' + acceleration.timestamp + '\n');
             ////z//(9.8 flat gravity)
             
-            if (acceleration.z > 12.9) {
-                //navigator.notification.alert('ub quaken bichez');
-                turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
-                (function () {
-                    setInterval(switchWithPeer, 1000);
-                })();
+            if (acceleration.z > (9.8 + 0.50)) { //24 sec to generate action for + 0.15g // 
+                recursedAccelCount = recursedAccelCount + 1;
+                if (recursedAccelCount > 4) {
+                    recursedAccelCount = 0;
+                    //navigator.notification.alert('ub quaken bichez');
+                    turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
+                    (function () {
+                        setInterval(switchWithPeer, 1000);
+                    })();
+                }
+                else {
+                    getAccel();
+                }
+               
             }
             //navigator.accelerometer.clearWatch(watchID);
            
@@ -262,6 +274,17 @@ Other intensity scales
         //navigator.notification.alert("addr: " + _thisAddr + " isResponder: " + _isResponder + " gps: " + _gps);
     }
     function onDeviceReady() {
+
+        //var cook = window.localStorage;
+
+        ////if ((firstRun = cook.getItem("firstRun", "1") == null)) {
+        ////    localPhysicalAddr();
+        ////}
+        //var responderCook = window.localStorage;
+        //var addrCook = window.localStorage;
+        //isResponder = isResponderCook.setItem("isResponder", "0");
+        //thisAddr = thisAddrCook.setItem("addr", thisAddr + results.input1);
+
         // need an initial random address before user to ui input so that network peers are not seen as the same
         var selected = 0;
         selected = getRandomInt(0, 1024);
