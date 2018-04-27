@@ -57,6 +57,36 @@ com.android.launcher.permission.UNINSTALL_SHORTCUT
 
 // *** shake detect is ios ready *** //
 
+/* quake stats
+
+Comparison of instrumental and felt intensity[edit]
+Peak ground acceleration provides a measurement of instrumental intensity, that is, ground shaking recorded by seismic instruments. Other intensity scales measure felt intensity, based on eyewitness reports, felt shaking, and observed damage. There is correlation between these scales, but not always absolute agreement since experiences and damage can be affected by many other factors, including the quality of earthquake engineering.
+
+Generally speaking,
+
+0.001 g (0.01 m/s²) – perceptible by people
+0.02  g (0.2  m/s²) – people lose their balance
+0.50  g – very high; well-designed buildings can survive if the duration is short.[7]
+Correlation with the Mercalli scale[edit]
+
+The United States Geological Survey developed an Instrumental Intensity scale, which maps peak ground acceleration and peak ground velocity on an intensity scale similar to the felt Mercalli scale. These values are used to create shake maps by seismologists around the world.
+Instrumental	Acceleration	Velocity	Perceived shaking	Potential damage
+Intensity	(g)	(cm/s)
+I	< 0.0017	< 0.1	Not felt	None
+II–III	0.0017 – 0.014	0.1 – 1.1	Weak	None
+IV	0.014 – 0.039	1.1 – 3.4	Light	None
+V	0.039 – 0.092	3.4 – 8.1	Moderate	Very light
+VI	0.092 – 0.18	8.1 – 16	Strong	Light
+VII	0.18 – 0.34	16 – 31	Very strong	Moderate
+VIII	0.34 – 0.65	31 – 60	Severe	Moderate to heavy
+IX	0.65 – 1.24	60 – 116	Violent	Heavy
+X+	> 1.24	> 116	Extreme	Very heavy
+
+Other intensity scales
+
+
+*/
+
 (function () {
     "use strict";
     var device_names = {}; // key value pair
@@ -154,19 +184,19 @@ com.android.launcher.permission.UNINSTALL_SHORTCUT
     function getAccel() {
         //var z = null;
         function onSuccess(acceleration) {
-            navigator.notification.alert('Acceleration X: ' + acceleration.x + '\n' +
-                'Acceleration Y: ' + acceleration.y + '\n' +
-                'Acceleration Z: ' + acceleration.z + '\n' +
-                'Timestamp: ' + acceleration.timestamp + '\n');
-            //z//(9.8 flat gravity)
+            //navigator.notification.alert('Acceleration X: ' + acceleration.x + '\n' +
+            //    'Acceleration Y: ' + acceleration.y + '\n' +
+            //    'Acceleration Z: ' + acceleration.z + '\n' +
+            //    'Timestamp: ' + acceleration.timestamp + '\n');
+            ////z//(9.8 flat gravity)
             
-            //if (acceleration.z > 10) {
-            //    navigator.notification.alert('ub quaken bichez');
-            //    //turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
-            //    //(function () {
-            //    //    setInterval(switchWithPeer, 1000);
-            //    //})();
-            //}
+            if (acceleration.z > 12.9) {
+                //navigator.notification.alert('ub quaken bichez');
+                turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
+                (function () {
+                    setInterval(switchWithPeer, 1000);
+                })();
+            }
             //navigator.accelerometer.clearWatch(watchID);
            
         }
@@ -185,7 +215,10 @@ com.android.launcher.permission.UNINSTALL_SHORTCUT
 
     }
     function shakeDetectThread() {
-        getAccel();
+        (function () {
+            setInterval(getAccel, 1000);
+        })();
+        
         //var onShake = function () {
         //    shake.stopWatch();
         //    shake = null;
