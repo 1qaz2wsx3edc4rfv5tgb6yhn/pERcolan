@@ -189,6 +189,7 @@ Other intensity scales
             }
         }
     } 
+    // commit!
     function addrResponderMenu() {
         var storage = window.localStorage;
         var storage2 = window.localStorage;
