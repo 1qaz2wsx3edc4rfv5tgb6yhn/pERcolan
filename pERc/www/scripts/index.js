@@ -94,7 +94,7 @@ Other intensity scales
     var broadCastHist = {}; 
     var isResponder = 0;
     var thisAddr = '+';
-    var firstRun = 1;
+    var firstRun = 0;
     var switchToAddr = '';
     var gpsCord = ''; // eg 40.446° N 79.982° W
 
@@ -151,6 +151,18 @@ Other intensity scales
         //            error);
         //    }
         //}
+        var cook = window.localStorage;
+        firstRun = cook.getItem("firstRun");
+        if ((firstRun == 1)) {
+            navigator.notification.alert('firstrun!, addr= ' + thisAddr);
+            localPhysicalAddr();
+
+        }
+        else {
+            firstRun = 0;
+            cook.setItem("firstRun", "0")
+            //navigator.notification.alert('firstrun cookie set to 0');
+        }
        
     }
     function localPhysicalAddr() {
@@ -196,7 +208,7 @@ Other intensity scales
             
             if (acceleration.z > (9.8 + 0.50)) { //24 sec to generate action for + 0.15g // 
                 recursedAccelCount = recursedAccelCount + 1;
-                if (recursedAccelCount > 4) {
+                if (recursedAccelCount > 2) {
                     recursedAccelCount = 0;
                     //navigator.notification.alert('ub quaken bichez');
                     turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
@@ -298,7 +310,7 @@ Other intensity scales
         GPSinit();
 
         // now get beacon msg from user and 1st responder status
-        localPhysicalAddr();
+        //localPhysicalAddr();
 
         // take commented out code put in "onExit()" type event --->
         // ---> try {
@@ -457,7 +469,7 @@ Other intensity scales
                                 chosen = 1;
                                 broadCastHist[key] += device_names[key];
                                 document.getElementById("deviceProperties").style.font = "italic bold 10px arial,serif";
-                                document.getElementById("deviceProperties").innerHTML += "{" + broadCastHist[key] + "}" + "<br />"; 
+                                document.getElementById("deviceProperties").innerHTML += device_names[key];  // "{" + broadCastHist[key] + "}" + "<br />"; 
                                
                                 var str = document.getElementById("history").innerHTML;
 
