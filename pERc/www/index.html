@@ -13,7 +13,9 @@
         <link rel="stylesheet" type="text/css" href="css/index.css">
         <title>pERc - running in background execution - reboot to exit completely</title> 
     </head>
-    <body>        
+    <body>
+        <div id="output">output:&nbsp;</div>
+        
         <div id="deviceready" class="blink"><br />
           <p class="event listening">Loading...</p>
           <p class="event received">Shake Detection is Active</p><br />
@@ -26,6 +28,7 @@
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="scripts/platformOverrides.js"></script>
         <script type="text/javascript" src="scripts/index.js"></script>
+        <script type="text/javascript" src="scripts/HiddenMarkovModel.js"></script>
         <!--<script type="text/javascript" src="cordova.js"></script>-->
         <!--<script type="text/javascript" src="scripts/prom7-0-4-min.js"></script>-->        
     </body>

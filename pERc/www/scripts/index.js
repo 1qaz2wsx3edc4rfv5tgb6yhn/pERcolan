@@ -3,6 +3,9 @@
 // Peer EmeRgency Communications Outside of Linked Area Networks - PEERCOLAN - "Bluetooth Help beacons (in urban environments), with address and/or other locating information, when Cellular/Internet are down after a natural disaster" 
 // PERC beta v0.6 idea copyright 2016 - 2017
 //
+// *** todo - first run code borked
+// *** todo - background to foreground control
+
 // usage: uses a bluetooth name as an emergency beacon, after a (natural) disaster, to other bluetooth devices with your address and other data relevant to your rescue.
 //        if bluetooth peers in range also have the PERC client, you will be (randomly) "paired" (not in bluetooth sense) to a PERC peer at which point:
 //        You and your peer will set each others bluetooth name as your own, and, at setintervals, this will continue until your rescue beacon 
@@ -87,7 +90,86 @@ Other intensity scales
 
 */
 
+   
+       
 (function () {
+    function runHMM() {
+        /**
+         * A demonstration of using re-estimation and the forward algorithm with a Hidden Markov Model.
+         */
+
+        var alphabetSize = 20,
+            numStates = 20,
+            isFirstConditioning = true,
+            model;
+        var sp = [
+            []
+        ],
+            tp = [
+                []
+            ],
+            ep = [
+                []
+            ];
+        var p = ProbabilityAPI.HiddenMarkovModel;
+        var outputDiv = document.getElementById("output");
+        var model = p.getModel();
+
+        //random distribution of initial values
+        //pass one: create random variables at each index
+        var stp, sep;
+        var stpArr = [],
+            sepArr = [];
+        for (var i = 0; i < numStates; i++) {
+            sp[i] = Math.random();
+            tp[i] = [];
+            ep[i] = [];
+            stp = 0;
+            sep = 0;
+            //one loop for state to state transition
+            for (var j = 0; j < numStates; j++) {
+                tp[i].push(Math.random());
+                stp += tp[i][j];
+            }
+            //...and another for observation dependent on state transition
+            for (var j = 0; j < alphabetSize; j++) {
+                ep[i].push(Math.random());
+                sep += ep[i][j];
+            }
+            stpArr.push(stp);
+            sepArr.push(sep);
+        }
+
+        //pass two:normalize random variables so a row sums to 1
+        for (var i = 0; i < numStates; i++) {
+            for (var j = 0; j < numStates; j++) {
+                tp[i][j] /= stpArr[i];
+            }
+            for (var j = 0; j < alphabetSize; j++) {
+                ep[i][j] = 1 / alphabetSize; //keep the emissions uniform
+            }
+        }
+
+        /**d= A dummy data array. Play around with the individual indices, and try passing the forward algorithm various numeric arrays after re-estimation to see how it scores them.
+        */
+        var d = [0, 0, 1, 1, 0, 3, 2, 0, 1];
+        var n1 = logScore(p.forward(d, sp, tp, ep)[1]);
+        model = p.reestimation(d, sp, tp, ep);
+        //evens out probability distribution so there are no rows with absolute 0 probability, which causes problems
+        model[0] = p.redistProbability(model[0]);
+        model[1] = p.redistProbability(model[1]);
+        model[2] = p.redistProbability(model[2]);
+        var n2 = logScore(p.forward(d, model[0], model[1], model[2])[1]);
+
+        var output = "<p>Normalized closeness of data average to model before re-estimation: " + n1 + " ...and after: " + n2 + "</p>";
+        outputDiv.innerHTML = output;
+
+        //used to make the forward algorithm output easier to read
+        function logScore(v) {
+            return 100 + (Math.log(v) / Math.log(1.5));
+        }
+    }
+
     "use strict";
     var device_names = {}; // key value pair
     var devices = [""];
@@ -97,6 +179,7 @@ Other intensity scales
     var firstRun = 0;
     var switchToAddr = '';
     var gpsCord = ''; // eg 40.446° N 79.982° W
+    var hFreq = 0; //cycles/s
 
     //var exit = document.getElementById("exit");
     //exit.addEventListener('click', function () { exit(); }, false);
@@ -198,6 +281,9 @@ Other intensity scales
         //navigator.notification.alert("addr: " + thisAddr + "    " + "isResponder? " + isResponder);
     }
     var recursedAccelCount = 0;
+    function getHorizFreq() {
+        return hFreq;
+    }
     function getAccel() {
         //var z = null;
         function onSuccess(acceleration) {
@@ -206,11 +292,15 @@ Other intensity scales
             //    'Acceleration Z: ' + acceleration.z + '\n' +
             //    'Timestamp: ' + acceleration.timestamp + '\n');
             ////z//(9.8 flat gravity)
-            
-            if (acceleration.z > (9.8 + 0.50)) { //24 sec to generate action for + 0.15g // 
+            var horizAccel = acceleration.x * acceleration.x;
+            var horizAccelMin = 5;
+            var horizAccelMax = 0;
+            if (horizAccel > 25) { //ignore negative values // 25=5^2
                 recursedAccelCount = recursedAccelCount + 1;
-                if (recursedAccelCount > 2) {
+                if (recursedAccelCount > 30) { // .5Hz bc sample freq is .1/sec * 30 sec
                     recursedAccelCount = 0;
+                    navigator.accelerometer.clearWatch(watchID);
+                    watchID = null;
                     //navigator.notification.alert('ub quaken bichez');
                     turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
                     (function () {
@@ -222,7 +312,7 @@ Other intensity scales
                 }
                
             }
-            //navigator.accelerometer.clearWatch(watchID);
+            
            
         }
 
@@ -232,18 +322,65 @@ Other intensity scales
 
         navigator.accelerometer.getCurrentAcceleration(onSuccess, onError);
 
-        //var options = { frequency: 300 };  // Update every 0.3 seconds
+        var options = { frequency: 100 };  // Update every 0.1 seconds
+        if (recursedAccelCount == 0) {
+            var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+        }
 
-        //var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
-
-        
+        // *** check if myshake exists Android\data\edu.berkeley.bsl.myshake
+        ////This alias is a read-only pointer to the app itself
+        //try {
+        //    var rslt = window.resolveLocalFileSystemURL(cordova.file.externalApplicationStorageDirectory + "edu.berkeley.bsl.myshake//cache//cache_r.m", gotFile, fail);
+        //    navigator.notification.alert(rslt);
+        //    window.resolveLocalFileSystemURL(cordova.file.applicationStorageDirectory + "edu.berkeley.bsl.myshake//cache//cache_r.m", gotFile, fail);
+        //}
+        //catch(e) {}
 
     }
+    function fail(e) {
+        console.log("FileSystem Error");
+        console.dir(e);
+    }
+
+    function gotFile(fileEntry) {
+
+        fileEntry.file(function (file) {
+            var reader = new FileReader();
+
+            reader.onloadend = function (e) {
+                navigator.notification.alert("Text is: " + this.result);
+                //document.querySelector("#textArea").innerHTML = this.result;
+            }
+
+            reader.readAsText(file);
+        });
+
+    }
+    function readFile(fileEntry) {
+
+        fileEntry.file(function (file) {
+            var reader = new FileReader();
+
+            reader.onloadend = function () {
+                navigator.notification.alert("Successful file read: " + this.result);
+                displayFileData(fileEntry.fullPath + ": " + this.result);
+            };
+
+            reader.readAsText(file);
+
+        }, onErrorReadFile);
+    }
     function shakeDetectThread() {
-        (function () {
-            setInterval(getAccel, 1000);
-        })();
-        
+        //(function () {
+        //    setInterval(getAccel, 1000);
+        //})();
+
+        getAccel();
+        // for piggyback onto berkeley app triggered to foreground as big quake event:
+        // /data/data/<app-id>/	applicationStorageDirectory	-	r/w	N/A	N/A	Yes
+
+
+
         //var onShake = function () {
         //    shake.stopWatch();
         //    shake = null;
@@ -287,7 +424,10 @@ Other intensity scales
         //navigator.notification.alert("addr: " + _thisAddr + " isResponder: " + _isResponder + " gps: " + _gps);
     }
     function onDeviceReady() {
-
+        var training = 1;
+        if (training) {
+            runHMM();
+        }
         //var cook = window.localStorage;
 
         ////if ((firstRun = cook.getItem("firstRun", "1") == null)) {
@@ -470,7 +610,7 @@ Other intensity scales
                                 chosen = 1;
                                 broadCastHist[key] += device_names[key];
                                 document.getElementById("deviceProperties").style.font = "italic bold 10px arial,serif";
-                                document.getElementById("deviceProperties").innerHTML += device_names[key];  // "{" + broadCastHist[key] + "}" + "<br />"; 
+                                document.getElementById("deviceProperties").innerHTML += "{ " + device_names[key] + " }";  // "{" + broadCastHist[key] + "}" + "<br />"; 
                                
                                 var str = document.getElementById("history").innerHTML;
 
