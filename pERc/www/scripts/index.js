@@ -93,10 +93,16 @@ Other intensity scales
    
        
 (function () {
-    function runHMM() {
+    //var training = 0; // hmm training flag
+    var d = Array(1024).fill(0); //[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; // training data
+    function trainHMM() {
         /**
          * A demonstration of using re-estimation and the forward algorithm with a Hidden Markov Model.
          */
+
+        // sp = 'correlations from one possible state to the next' - assinged randomly in beginning ?? from wiki: start_probability = {'Rainy': 0.6, 'Sunny': 0.4}MO
+        // tp = 'transition probabilities from observed data'
+        // ep = 'emission probabilities'
 
         var alphabetSize = 20,
             numStates = 20,
@@ -104,7 +110,7 @@ Other intensity scales
             model;
         var sp = [
             []
-        ],
+            ],
             tp = [
                 []
             ],
@@ -152,7 +158,9 @@ Other intensity scales
 
         /**d= A dummy data array. Play around with the individual indices, and try passing the forward algorithm various numeric arrays after re-estimation to see how it scores them.
         */
-        var d = [0, 0, 1, 1, 0, 3, 2, 0, 1];
+       
+        // filled from getAccel()
+        //d = [0, 0, 1, 1, 0, 3, 2, 0, 1];
         var n1 = logScore(p.forward(d, sp, tp, ep)[1]);
         model = p.reestimation(d, sp, tp, ep);
         //evens out probability distribution so there are no rows with absolute 0 probability, which causes problems
@@ -160,14 +168,13 @@ Other intensity scales
         model[1] = p.redistProbability(model[1]);
         model[2] = p.redistProbability(model[2]);
         var n2 = logScore(p.forward(d, model[0], model[1], model[2])[1]);
-
         var output = "<p>Normalized closeness of data average to model before re-estimation: " + n1 + " ...and after: " + n2 + "</p>";
         outputDiv.innerHTML = output;
-
         //used to make the forward algorithm output easier to read
         function logScore(v) {
-            return 100 + (Math.log(v) / Math.log(1.5));
-        }
+                return 100 + (Math.log(v) / Math.log(1.5));
+            }
+      
     }
 
     "use strict";
@@ -284,32 +291,54 @@ Other intensity scales
     function getHorizFreq() {
         return hFreq;
     }
+    var sampleNum = 0;
     function getAccel() {
         //var z = null;
         function onSuccess(acceleration) {
+            
             //navigator.notification.alert('Acceleration X: ' + acceleration.x + '\n' +
             //    'Acceleration Y: ' + acceleration.y + '\n' +
             //    'Acceleration Z: ' + acceleration.z + '\n' +
             //    'Timestamp: ' + acceleration.timestamp + '\n');
             ////z//(9.8 flat gravity)
-            var horizAccel = acceleration.x * acceleration.x;
-            var horizAccelMin = 5;
+            //navigator.notification.alert('in accel success callback');
+
+
+            //var vertAccel = acceleration.z;
+            //d.push(Math.abs(Math.trunc(acceleration.z)));
+
+
+            //d.push(Math.abs(Math.trunc(acceleration.z)));
+            //if (sampleNum < 5) {
+            //    d[sampleNum] = Math.abs(Math.trunc(acceleration.z));
+            //    sampleNum++;
+            //}
+
+            var horizAccelMin = acceleration.x * acceleration.x;
             var horizAccelMax = 0;
-            if (horizAccel > 25) { //ignore negative values // 25=5^2
-                recursedAccelCount = recursedAccelCount + 1;
-                if (recursedAccelCount > 30) { // .5Hz bc sample freq is .1/sec * 30 sec
-                    recursedAccelCount = 0;
-                    navigator.accelerometer.clearWatch(watchID);
-                    watchID = null;
-                    //navigator.notification.alert('ub quaken bichez');
-                    turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
-                    (function () {
-                        setInterval(switchWithPeer, 1000);
-                    })();
-                }
-                else {
-                    getAccel();
-                }
+            if (horizAccelMin > 25) { //ignore negative values // 25=5^2
+                //recursedAccelCount = recursedAccelCount + 1;
+                //navigator.notification.alert(horizAccelMin);
+                navigator.accelerometer.clearWatch(watchID);
+                watchID = null;
+                navigator.notification.alert('ub quaken bichez');
+                turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
+                (function () {
+                    setInterval(switchWithPeer, 1000);
+                })();
+                //if (recursedAccelCount > 0) { // .5Hz bc sample freq is .1/sec * 30 sec
+                //    recursedAccelCount = 0;
+                //    navigator.accelerometer.clearWatch(watchID);
+                //    watchID = null;
+                //    //navigator.notification.alert('ub quaken bichez');
+                //    turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
+                //    (function () {
+                //        setInterval(switchWithPeer, 1000);
+                //    })();
+                //}
+                //else {
+                //    getAccel();
+                //}
                
             }
             
@@ -322,10 +351,10 @@ Other intensity scales
 
         navigator.accelerometer.getCurrentAcceleration(onSuccess, onError);
 
-        var options = { frequency: 100 };  // Update every 0.1 seconds
-        if (recursedAccelCount == 0) {
-            var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
-        }
+        //var options = { frequency: 100 };  // Update every 0.1 seconds
+        //if (recursedAccelCount == 0) {
+        //    var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+        //}
 
         // *** check if myshake exists Android\data\edu.berkeley.bsl.myshake
         ////This alias is a read-only pointer to the app itself
@@ -341,7 +370,7 @@ Other intensity scales
         console.log("FileSystem Error");
         console.dir(e);
     }
-
+    
     function gotFile(fileEntry) {
 
         fileEntry.file(function (file) {
@@ -370,12 +399,81 @@ Other intensity scales
 
         }, onErrorReadFile);
     }
+    function getShakePrediction(){
+    
+    }
+    var stopTraining = 0;
+    var timeZero = 0;
+    var timeFinal = 0;
     function shakeDetectThread() {
+        //navigator.notification.alert('started shake watch');
+        //var launchPerc = 1;
+        //turnBluOn();
+        //setThisBeaconMsg(makeThisPublic(getOtherTeeth()));
+        //(function () {
+        //    setInterval(switchWithPeer, 12000);
+        //})();
+        var onShake = function () {
+            if (timeZero == 0) {
+                timeZero = new Date().getTime() / 1000;
+                //navigator.notification.alert(timeZero); // delta from o to f ~150 for 1.5min 
+                timeFinal = new Date().getTime() / 1000;
+            }
+            timeFinal = timeFinal + 1;
+            if (timeFinal - timeZero > 10) { // ~ 15 sec shaking...wow, perfect :)
+                shake.stopWatch();
+                turnBluOn(setThisBeaconMsg(makeThisPublic(getOtherTeeth())));
+                (function () {
+                    setInterval(switchWithPeer, 1000);
+                    launchPerc = 0;
+                })();
+            }
+            /* will never get here! */
+            //navigator.notification.alert('after interval loop code');
+
+            // Fired after a shake is detected and blutooth event loop has launched abpve
+            if (launchPerc == 0) {
+                // read address, set beacon
+                //shake.stopWatch();
+                var storage = window.localStorage;
+                thisAddr = storage.getItem("addr");
+                //navigator.notification.alert(thisAddr + ' is broadcasting');
+            }
+        };
+
+        var onError = function () {
+            navigator.notification.alert("accelerometer err");
+        };
+
+        //Start watching for shake gestures and call "onShake"
+        //with a shake sensitivity of 40 (optional, default 30)
+        shake.startWatch(onShake, 20, onError); // 300 ms interval I believe from authors earlier work on android from which this plugin is based
+
+
+
         //(function () {
         //    setInterval(getAccel, 1000);
         //})();
+        //for (var i = 0; i < 4; i++){
+            
+        //}
 
-        getAccel();
+        //while (stopTraining == 0) {            
+        //    getAccel();
+        //    if (document.getElementById("train").checked != true) {
+        //        stopTraining = 1;
+        //    }
+        //}
+        //if (training == 1) {
+        //    trainHMM();
+        //}
+        //else {
+        //    getShakePrediction();
+        //}
+        //for (var i = 0; i < 4; i++) {
+        //    navigator.notification.alert(d[i]);
+        //}
+        //getAccel();
         // for piggyback onto berkeley app triggered to foreground as big quake event:
         // /data/data/<app-id>/	applicationStorageDirectory	-	r/w	N/A	N/A	Yes
 
@@ -423,11 +521,11 @@ Other intensity scales
 
         //navigator.notification.alert("addr: " + _thisAddr + " isResponder: " + _isResponder + " gps: " + _gps);
     }
+    var training = 0;
     function onDeviceReady() {
-        var training = 1;
-        if (training) {
-            runHMM();
-        }
+        training = 1;
+        //document.getElementById("train").checked = true;
+        //runHMM(training);
         //var cook = window.localStorage;
 
         ////if ((firstRun = cook.getItem("firstRun", "1") == null)) {
@@ -451,7 +549,7 @@ Other intensity scales
         GPSinit();
 
         // now get beacon msg from user and 1st responder status
-        //localPhysicalAddr();
+        localPhysicalAddr();
 
         // take commented out code put in "onExit()" type event --->
         // ---> try {
@@ -464,7 +562,7 @@ Other intensity scales
         //}
         //catch (error) { navigator.notification.alert('background run function(s) error: ' + error); }
 
-        
+        //setTimeout({}, 20000);
         //navigator.notification.alert('right before shake detect call');
         shakeDetectThread(); // main event loop
         
