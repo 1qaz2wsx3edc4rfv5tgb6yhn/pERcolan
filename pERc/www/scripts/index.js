@@ -190,13 +190,16 @@ Other intensity scales
         // want to shove n units of accel. data into trained NN - can it increment and re-check as it grows?
         //
         var onShake = function () {
-            shake.stopWatch();
+            
             if (isTrained) {
-                getAccel();
+                shake.stopWatch();
+                for (var i = 0; i < 1150180; i++) {
+                    getAccel();
+                }
                 guessQuake(accelRealData);
             }   // check prediction! then start bluchatting if yes. not training when used here => rename function
             else { // still training, 
-                trainNNbp(accelTrainingData);
+                //trainNNbp(accelTrainingData);
                 //shake.startWatch();
             }
             //shake.startWatch();
@@ -267,7 +270,7 @@ Other intensity scales
         if (!isTrained) {
             
             // collect data
-            for (var i = 0; i < 180; i++) {
+            for (var i = 0; i < 1150180; i++) {
                 getAccel();
             }
             // train the network - learn XOR
