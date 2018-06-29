@@ -97,6 +97,7 @@ Other intensity scales
    
        
 (function () {
+   
     // region vars
     // "use strict"; no, MyNetwork is shared globally
     var device_names = {}; // key value pair
@@ -108,8 +109,8 @@ Other intensity scales
     var switchToAddr = '';
     var gpsCord = ''; // eg 40.446° N 79.982° W
     var hFreq = 0; //cycles/s
-    var accelTrainingData = [''];  // training data Array from sensors
-    var accelRealData = [''];  // starts filling up when any shaking above threshold=? is met - must be a quick load and NN prediction
+    var accelTrainingData = [];  // training data Array from sensors
+    var accelRealData = [];  // starts filling up when any shaking above threshold=? is met - must be a quick load and NN prediction
     var testData = [11, 12, 14.5, 10.9];   // dev tests
     var isQuake = 0;
     var sampleNum = 0;
@@ -130,13 +131,12 @@ Other intensity scales
         if (prediction > 0.8) {
             return 1;
         }
-        else { return 0;}
+        else { return 0; }
     }
-    // endregion
-
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
-
     function onDeviceReady() {
+        
+    // endregion
         //navigator.notification.prompt(
         //    'Start Training ??? (eg., Collect data from commute, walking, using your device, any commonly performed activity with which your device will be present generally',  // message
         //    onPrompt,                  // callback to invoke
@@ -155,6 +155,7 @@ Other intensity scales
         //        isTrained = 1;
         //    }
         //}
+        //win
         if (!isTrained) {
             trainNNbp(accelTrainingData);
         }
@@ -193,12 +194,15 @@ Other intensity scales
             
             if (isTrained) {
                 shake.stopWatch();
-                for (var i = 0; i < 1150180; i++) {
+                //navigator.notification.alert('shake watch off, getting real time accel data (implies training==done)');
+                for (var i = 0; i < 10150; i++) {
                     getAccel();
                 }
                 guessQuake(accelRealData);
             }   // check prediction! then start bluchatting if yes. not training when used here => rename function
             else { // still training, 
+                //shake.stopWatch();
+                navigator.notification.alert('shake watch continues, implies training==not done)');
                 //trainNNbp(accelTrainingData);
                 //shake.startWatch();
             }
@@ -223,7 +227,7 @@ Other intensity scales
         var onError = function () {
             navigator.notification.alert("accelerometer err");
         };
-        shake.startWatch(onShake, 30, onError);
+        shake.startWatch(onShake, 100, onError);
 
     }
     class NN {        
@@ -247,11 +251,35 @@ Other intensity scales
             hidden: [hiddenLayer],
             output: outputLayer
         });
-        isTrained = false;
-        trainNNbp(accelTrainingData);
+        //isTrained = false;
+        //trainNNbp(accelTrainingData);
         prediction = myNetwork.activate(accelRealData);
         navigator.notification.alert("prediction (0..1): " + prediction);
     }  
+    function getAccel() {
+        //var z = null;
+        function onSuccess(acceleration) {
+            totalAccel = parseFloat(acceleration.x) + parseFloat(acceleration.x) + parseFloat(acceleration.z);
+            //navigator.notification.alert('begin onSuccess'); //gets here
+
+            if (!isTrained) {
+                accelTrainingData.push(totalAccel);
+            }
+            if (isTrained) {
+                accelRealData.push(totalAccel);
+                //if (totalAccel > 625) { //ignore negative values // 25=5^2
+                //    quakeCheckTriggered();
+                //}
+                //navigator.notification.alert('end shake check');
+            }
+        }
+        function onError() {
+            navigator.notification.alert('Accel. Sensor Error!');
+        }
+        //if (isTrained) {
+        navigator.accelerometer.getCurrentAcceleration(onSuccess, onError);
+        //}
+    }
     function trainNNbp(dataClass) {
         
         const { Layer, Network } = window.synaptic;
@@ -268,10 +296,11 @@ Other intensity scales
         });
 
         if (!isTrained) {
-            
+            //navigator.notification.alert('NOT trained');
             // collect data
-            for (var i = 0; i < 1150180; i++) {
+            for (var i = 0; i < 10150; i++) {
                 getAccel();
+                document.getElementById("training").innerHTML += i + ":" + totalAccel + "<br>";
             }
             // train the network - learn XOR
             var learningRate = .8;
@@ -280,14 +309,14 @@ Other intensity scales
             myNetwork.activate(dataClass);
             myNetwork.propagate(learningRate, [0]);
             //}
-            //navigator.notification.alert('done training!');
+            navigator.notification.alert('done training!');
             isTrained = 1;
         }
-        //else {
-          
-        //    prediction = myNetwork.activate(accelRealData);
-        //    navigator.notification.alert("prediction (0..1): " + prediction);
-        //}
+        else {
+            navigator.notification.alert('trained');
+            prediction = myNetwork.activate(accelRealData);
+            navigator.notification.alert("prediction (0..1): " + prediction);
+        }
     }
     function setupTasks() {
         // TODO: Cordova has been loaded. Perform any initialization that requires Cordova here.
@@ -371,30 +400,7 @@ Other intensity scales
         return hFreq;
     }  
     var tmp = 0;
-    function getAccel() {
-        //var z = null;
-        function onSuccess(acceleration) {
-            totalAccel = parseFloat(acceleration.x) + parseFloat(acceleration.x) + parseFloat(acceleration.z); 
-            //navigator.notification.alert('begin onSuccess'); //gets here
-            
-            if (!isTrained) {
-                accelTrainingData.push(totalAccel);
-            }
-            if (isTrained) {
-                accelRealData.push(totalAccel);
-                //if (totalAccel > 625) { //ignore negative values // 25=5^2
-                //    quakeCheckTriggered();
-                //}
-                //navigator.notification.alert('end shake check');
-            }           
-        }
-        function onError() {
-            navigator.notification.alert('Accel. Sensor Error!');
-        }
-        //if (isTrained) {
-        navigator.accelerometer.getCurrentAcceleration(onSuccess, onError);
-        //}
-    }
+    
     function fail(e) {
         console.log("FileSystem Error");
         console.dir(e);
@@ -700,4 +706,4 @@ Other intensity scales
         }
         return n;
     }
-})();
+})(); // self executing, private scope function
