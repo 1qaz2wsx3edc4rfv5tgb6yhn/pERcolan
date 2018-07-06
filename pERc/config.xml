@@ -116,5 +116,4 @@
   <plugin name="cordova-plugin-device" spec="~2.0.1" />
   <plugin name="cordova-plugin-android-permissions" spec="~1.0.0" />
   <plugin name="cordova-plugin-shake" spec="~0.6.0" />
-  <plugin name="cordova-plugin-device-motion" spec="~2.0.0" />
 </widget>
