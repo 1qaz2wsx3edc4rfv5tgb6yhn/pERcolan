@@ -121,6 +121,7 @@ Other intensity scales
     var timeFinal = 0;
     var isTrained = 0;
     var prediction = 0.0 //0..1
+
     //var quakeCheckTriggered = function () {  }
     //var isQuake = function getShakePrediction() {
     //    if (prediction > 0.8) {
@@ -128,77 +129,24 @@ Other intensity scales
     //    }
     //    else { return 0; }
     //}
+
     var watchID = null;
+
     document.addEventListener('deviceready', onDeviceReady.bind(this), false);
-    function processEvent(event) {
-        // process the event object
-        function onSuccess(acceleration) {
-            alert('Acceleration X: ' + acceleration.x + '\n' +
-                'Acceleration Y: ' + acceleration.y + '\n' +
-                'Acceleration Z: ' + acceleration.z + '\n' +
-                'Timestamp: ' + acceleration.timestamp + '\n');
-            if (isTrained) {
-                //shake.stopWatch();
-                navigator.accelerometer.clearWatch(watchID);
-                //navigator.notification.alert('shake watch off, getting real time accel data (implies training==done)');
-                for (var i = 0; i < 1050; i++) {
-                    totalAccel = Math.abs(acceleration.z);
-                    dataClass.push(totalAccel);
-                }
-                guessQuake(accelRealData);
-            }   // check prediction! then start bluchatting if yes. not training when used here => rename function
-            else { // still training, 
-                //shake.stopWatch();
-                navigator.notification.alert('shake watch continues, implies training==not done)');
-                //trainNNbp(accelTrainingData);
-                //shake.startWatch();
-            }
-        }
-        function onError() {
-            alert('onError!');
-        }
-        var options = { frequency: 3000 };  // Update every 3 seconds
-        watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
-    }
-    
-    //document.addEventListener("devicemotion", processEvent.bind(this), false);
-    function onSuccess(acceleration) {
-        //alert('Acceleration X: ' + acceleration.x + '\n' +
-        //    'Acceleration Y: ' + acceleration.y + '\n' +
-        //    'Acceleration Z: ' + acceleration.z + '\n' +
-        //    'Timestamp: ' + acceleration.timestamp + '\n');
-        totalAccel = Math.abs(acceleration.z);
-        if (isTrained) {            
-            accelRealData.push(totalAccel);
-        }
-        else {
-            accelTrainingData.push(totalAccel); 
-        }
-    }
 
-    // onError: Failed to get the acceleration
-    //
-    function onError() {
-        alert('onError!');
-    }
+    function onDeviceReady() {
 
-    function onDeviceReady() {      
-        //navigator.accelerometer.getCurrentAcceleration(onSuccess, onError);
         if (!isTrained) {
             trainNNbp(accelTrainingData);
-        }
-        var selected = 0;
+        } var selected = 0;
+
         selected = getRandomInt(0, 1024);
         thisAddr += selected;
 
-        //showAllSessionVars();
-
         setupTasks();
 
-        // turn on and session store local gps coords
         GPSinit();
 
-        // now get beacon msg from user and 1st responder status
         localPhysicalAddr();
 
         // take commented out code put in "onExit()" type event --->
@@ -212,161 +160,7 @@ Other intensity scales
         //}
         //catch (error) { navigator.notification.alert('background run function(s) error: ' + error); }
 
-        shakeDetectThread(); // main event loop
-    }
-    function shakeDetectThread() {
-        
-        if (isTrained) {
-            for (var i = 0; i < 1050; i++) {
-                navigator.accelerometer.getCurrentAcceleration(onSuccess, onError);
-
-            }
-            guessQuake(accelRealData);
-        }   // check prediction! then start bluchatting if yes. not training when used here => rename function
-        else {
-            //noop
-        }
-        //
-        // want to shove n units of accel. data into trained NN - can it increment and re-check as it grows?
-        //
-        //var onShake = function () {
-            
-        //    if (isTrained) {
-        //        shake.stopWatch();
-        //        //navigator.notification.alert('shake watch off, getting real time accel data (implies training==done)');
-        //        for (var i = 0; i < 1050; i++) {
-        //            totalAccel = Math.abs(acceleration.z);
-        //            dataClass.push(totalAccel);
-        //        }
-        //        guessQuake(accelRealData);
-        //    }   // check prediction! then start bluchatting if yes. not training when used here => rename function
-        //    else { // still training, 
-        //        //shake.stopWatch();
-        //        navigator.notification.alert('shake watch continues, implies training==not done)');
-        //        //trainNNbp(accelTrainingData);
-        //        //shake.startWatch();
-        //    }
-        //    //shake.startWatch();
-        //    //timeZero = 0;
-        //    //if (timeZero == 0) {
-        //    //    timeZero = new Date().getTime() / 1000;
-        //    //    //navigator.notification.alert(timeZero); // delta from o to f ~150 for 1.5min 
-        //    //    timeFinal = new Date().getTime() / 1000;
-        //    //}
-        //    //timeFinal = timeFinal + 1;
-        //    //if (timeFinal - timeZero > 10) { // ~ 10 sec of shaking
-        //    //    shake.stopWatch();
-        //    //    trainNNbp(); // check prediction! then start bluchatting if yes. not training when used here => rename function
-        //    //    shake.startWatch();
-        //    //    timeZero = 0;
-        //    //}
-        //    /* will never get here! */
-        //    //navigator.notification.alert('after interval loop code');
-
-        //};
-        //var onError = function () {
-        //    navigator.notification.alert("accelerometer err");
-        //};
-        //shake.startWatch(onShake, 1, onError);
-
-    }
-    class NN {        
-        constructor() {
-           
-        }
-        static buildNN() {
-           
-        }
-    }
-    function guessQuake() {
-        const { Layer, Network } = window.synaptic;
-        var inputLayer = new Layer(1);
-        var hiddenLayer = new Layer(50);
-        var outputLayer = new Layer(1);
-
-        inputLayer.project(hiddenLayer);
-        hiddenLayer.project(outputLayer);
-        var myNetwork = new Network({
-            input: inputLayer,
-            hidden: [hiddenLayer],
-            output: outputLayer
-        });
-        //isTrained = false;
-        //trainNNbp(accelTrainingData);
-        prediction = myNetwork.activate(accelRealData);
-        navigator.notification.alert("prediction (0..1): " + prediction);
-    }  
-    function getAccel(dataClass) {
-        //var z = null;
-        function onSuccess(acceleration) {
-            //totalAccel = parseFloat(acceleration.x) + parseFloat(acceleration.x) + parseFloat(acceleration.z);
-            //navigator.notification.alert('begin onSuccess'); //gets here
-            totalAccel = Math.abs(acceleration.z);
-            dataClass.push(totalAccel);
-            //if (!isTrained) {
-            //    dataClass.push(totalAccel);
-            //}
-            //if (isTrained) {
-            //    accelRealData.push(totalAccel);
-            //    //if (totalAccel > 625) { //ignore negative values // 25=5^2
-            //    //    quakeCheckTriggered();
-            //    //}
-            //    //navigator.notification.alert('end shake check');
-            //}
-        }
-        function onError() {
-            navigator.notification.alert('Accel. Sensor Error!');
-        }
-        //if (isTrained) {
-
-        navigator.accelerometer.getCurrentAcceleration(onSuccess, onError);
-        //}
-    }
-    function trainNNbp() {
-        
-        const { Layer, Network } = window.synaptic;
-        var inputLayer = new Layer(2);
-        var hiddenLayer = new Layer(3);
-        var outputLayer = new Layer(1);
-        
-        inputLayer.project(hiddenLayer);
-        hiddenLayer.project(outputLayer);
-        var myNetwork = new Network({
-            input: inputLayer,
-            hidden: [hiddenLayer],
-            output: outputLayer
-        });
-
-        if (!isTrained) {
-            //navigator.notification.alert('NOT trained');
-            // collect data
-            for (var i = 0; i < 1050; i++) {
-                getAccel(accelTrainingData);
-                document.getElementById("training").innerHTML += totalAccel + "<br>";
-            }
-            // train the network - learn XOR
-            var learningRate = .8;
-            //for (var i = 0; i < 1800; i++) {
-            // 0,0 => 0
-            myNetwork.activate(accelTrainingData);
-            myNetwork.propagate(learningRate, [0]);
-            //}
-            navigator.notification.alert('done training!');
-            isTrained = 1;
-        }
-        else {
-            navigator.notification.alert('trained');
-            prediction = myNetwork.activate(accelRealData);
-            navigator.notification.alert("prediction (0..1): " + prediction);
-            navigator.notification.alert("prediction (0..1): " + prediction);
-            navigator.notification.alert("prediction (0..1): " + prediction);
-            navigator.notification.alert("prediction (0..1): " + prediction);
-            navigator.notification.alert("prediction (0..1): " + prediction);
-            navigator.notification.alert("prediction (0..1): " + prediction);
-            navigator.notification.alert("prediction (0..1): " + prediction);
-            navigator.notification.alert("prediction (0..1): " + prediction);
-            navigator.notification.alert("prediction (0..1): " + prediction);
-        }
+        //shakeDetectThread(); // main event loop
     }
     function setupTasks() {
         // TODO: Cordova has been loaded. Perform any initialization that requires Cordova here.
@@ -439,6 +233,207 @@ Other intensity scales
             }
         }
     }
+
+    //function processEvent(event) {
+    //    // process the event object
+    //    function onSuccess(acceleration) {
+    //        alert('Acceleration X: ' + acceleration.x + '\n' +
+    //            'Acceleration Y: ' + acceleration.y + '\n' +
+    //            'Acceleration Z: ' + acceleration.z + '\n' +
+    //            'Timestamp: ' + acceleration.timestamp + '\n');
+    //        if (isTrained) {
+    //            //shake.stopWatch();
+    //            navigator.accelerometer.clearWatch(watchID);
+    //            //navigator.notification.alert('shake watch off, getting real time accel data (implies training==done)');
+    //            for (var i = 0; i < 1050; i++) {
+    //                totalAccel = Math.abs(acceleration.z);
+    //                dataClass.push(totalAccel);
+    //            }
+    //            guessQuake(accelRealData);
+    //        }   // check prediction! then start bluchatting if yes. not training when used here => rename function
+    //        else { 
+
+    //            navigator.notification.alert('shake watch continues, implies training==not done)');
+
+
+    //        }
+    //    }
+    //    function onError() {
+    //        alert('onError!');
+    //    }
+    //    var options = { frequency: 3000 };  // Update every 3 seconds
+    //    watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+    //}
+
+    function showAllSessionVars() {
+        var storage = window.localStorage;
+        var storage2 = window.localStorage;
+        var storage3 = window.localStorage;
+        var _thisAddr = storage.getItem("addr");
+        var _isResponder = storage2.getItem("isResponder");
+        var _gps = storage3.getItem("gps");
+
+        //navigator.notification.alert("addr: " + _thisAddr + " isResponder: " + _isResponder + " gps: " + _gps);
+    }   
+
+    //document.addEventListener("devicemotion", processEvent.bind(this), false);
+
+    function onSuccess(acceleration) {
+        totalAccel = Math.abs(acceleration.z);
+        if (isTrained) {            
+            accelRealData.push(totalAccel);
+        }
+        else {
+            accelTrainingData.push(totalAccel); 
+        }
+    }
+    function onError() {
+        alert('onError!');
+    }    
+    function shakeDetectThread() {
+        
+        if (isTrained) {
+            for (var i = 0; i < 1050; i++) {
+                navigator.accelerometer.getCurrentAcceleration(onSuccess, onError);
+
+            }
+            guessQuake(accelRealData);
+        }   // check prediction! then start bluchatting if yes. not training when used here => rename function
+        else {
+            //noop
+        }
+        //
+        // want to shove n units of accel. data into trained NN - can it increment and re-check as it grows?
+        //
+        //var onShake = function () {
+            
+        //    if (isTrained) {
+        //        shake.stopWatch();
+        //        //navigator.notification.alert('shake watch off, getting real time accel data (implies training==done)');
+        //        for (var i = 0; i < 1050; i++) {
+        //            totalAccel = Math.abs(acceleration.z);
+        //            dataClass.push(totalAccel);
+        //        }
+        //        guessQuake(accelRealData);
+        //    }   // check prediction! then start bluchatting if yes. not training when used here => rename function
+        //    else { // still training, 
+        //        //shake.stopWatch();
+        //        navigator.notification.alert('shake watch continues, implies training==not done)');
+        //        //trainNNbp(accelTrainingData);
+        //        //shake.startWatch();
+        //    }
+        //    //shake.startWatch();
+        //    //timeZero = 0;
+        //    //if (timeZero == 0) {
+        //    //    timeZero = new Date().getTime() / 1000;
+        //    //    //navigator.notification.alert(timeZero); // delta from o to f ~150 for 1.5min 
+        //    //    timeFinal = new Date().getTime() / 1000;
+        //    //}
+        //    //timeFinal = timeFinal + 1;
+        //    //if (timeFinal - timeZero > 10) { // ~ 10 sec of shaking
+        //    //    shake.stopWatch();
+        //    //    trainNNbp(); // check prediction! then start bluchatting if yes. not training when used here => rename function
+        //    //    shake.startWatch();
+        //    //    timeZero = 0;
+        //    //}
+        //    /* will never get here! */
+        //    //navigator.notification.alert('after interval loop code');
+
+        //};
+        //var onError = function () {
+        //    navigator.notification.alert("accelerometer err");
+        //};
+        //shake.startWatch(onShake, 1, onError);
+
+    }
+
+    class NN {        
+        constructor() {
+           
+        }
+        static buildNN() {
+           
+        }
+    }
+
+    function guessQuake() {
+        const { Layer, Network } = window.synaptic;
+        var inputLayer = new Layer(1);
+        var hiddenLayer = new Layer(50);
+        var outputLayer = new Layer(1);
+
+        inputLayer.project(hiddenLayer);
+        hiddenLayer.project(outputLayer);
+        var myNetwork = new Network({
+            input: inputLayer,
+            hidden: [hiddenLayer],
+            output: outputLayer
+        });
+        prediction = myNetwork.activate(accelRealData);
+        navigator.notification.alert("prediction (0..1): " + prediction + accelRealData[1]);
+    }  
+    function getAccel(dataClass) {
+        //var z = null;
+        function onSuccess(acceleration) {
+            totalAccel = acceleration.z;
+            dataClass.push(totalAccel);
+            //if (!isTrained) {
+            //    dataClass.push(totalAccel);
+            //}
+            //if (isTrained) {
+            //    accelRealData.push(totalAccel);
+            //    //if (totalAccel > 625) { //ignore negative values // 25=5^2
+            //    //    quakeCheckTriggered();
+            //    //}
+            //    //navigator.notification.alert('end shake check');
+            //}
+        }
+        function onError() {
+            navigator.notification.alert('Accel. Sensor Error!');
+        }
+        navigator.accelerometer.getCurrentAcceleration(onSuccess, onError);
+    }
+    function trainNNbp() {
+        
+        const { Layer, Network } = window.synaptic;
+        var inputLayer = new Layer(2);
+        var hiddenLayer = new Layer(3);
+        var outputLayer = new Layer(1);
+        
+        inputLayer.project(hiddenLayer);
+        hiddenLayer.project(outputLayer);
+        var myNetwork = new Network({
+            input: inputLayer,
+            hidden: [hiddenLayer],
+            output: outputLayer
+        });
+
+        if (!isTrained) {
+            for (var i = 0; i < 1050; i++) {
+                getAccel(accelTrainingData);
+                document.getElementById("training").innerHTML += totalAccel + "<br>";
+            }
+            var learningRate = .8;
+            myNetwork.activate(accelTrainingData);
+            myNetwork.propagate(learningRate, [0]);
+            navigator.notification.alert('done training!');
+            isTrained = 1;
+        }
+        else {
+            navigator.notification.alert('trained');
+            prediction = myNetwork.activate(accelRealData);
+            navigator.notification.alert("prediction (0..1): " + prediction);
+            navigator.notification.alert("prediction (0..1): " + prediction);
+            navigator.notification.alert("prediction (0..1): " + prediction);
+            navigator.notification.alert("prediction (0..1): " + prediction);
+            navigator.notification.alert("prediction (0..1): " + prediction);
+            navigator.notification.alert("prediction (0..1): " + prediction);
+            navigator.notification.alert("prediction (0..1): " + prediction);
+            navigator.notification.alert("prediction (0..1): " + prediction);
+            navigator.notification.alert("prediction (0..1): " + prediction);
+        }
+    }
+
     function addrResponderMenu() {
         var storage = window.localStorage;
         var storage2 = window.localStorage;
@@ -446,10 +441,11 @@ Other intensity scales
         var _isResponder = storage2.getItem("isResponder");
         //navigator.notification.alert("addr: " + thisAddr + "    " + "isResponder? " + isResponder);
     }
+
     function getHorizFreq() {
         return hFreq;
     }  
-    var tmp = 0;    
+    
     function fail(e) {
         console.log("FileSystem Error");
         console.dir(e);
@@ -480,6 +476,7 @@ Other intensity scales
 
         }, onErrorReadFile);
     }       
+
     //function exit() {
     //    var exit = document.getElementById("exit");
     //    exit.innerHTML = "Background run mode is OFF";
@@ -488,16 +485,8 @@ Other intensity scales
     //    wrapper.appendChild(exit);
     //    cordova.plugins.backgroundMode.disable();
     //}
-    function showAllSessionVars() {
-        var storage = window.localStorage;
-        var storage2 = window.localStorage;
-        var storage3 = window.localStorage;
-        var _thisAddr = storage.getItem("addr");
-        var _isResponder = storage2.getItem("isResponder");
-        var _gps = storage3.getItem("gps");
 
-        //navigator.notification.alert("addr: " + _thisAddr + " isResponder: " + _isResponder + " gps: " + _gps);
-    }        
+         
     function GPSinit() {        
         gpsDetect.checkGPS(onGPSSuccess, onGPSError);        
         function onGPSSuccess(on) {
@@ -544,6 +533,7 @@ Other intensity scales
         navigator.geolocation.getCurrentPosition(onSuccess, onError);
 
     }
+
     //function onPause() {
     //    // TODO: This application has been suspended. Save application state here.
     //};
@@ -554,9 +544,11 @@ Other intensity scales
             navigator.notification.alert('Connection failed: ' + errorMessage);
         });
     }
+
     //function onResume() {
     //    // TODO: This application has been reactivated. Restore application state here.
     //};
+
     function decideBeacon(numNeighs) { // eg set this blutooth name based upon pnp/neighbor router
         // *** commented out random selection ***
         var selected = 0;
@@ -754,4 +746,4 @@ Other intensity scales
         }
         return n;
     }
-})(); // self executing, private scope function
+})();
